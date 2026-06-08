@@ -24,4 +24,7 @@ pnpm-debug.log*
 .cache
 .stackbit/cache
 # Local Netlify folder
-.netlify
+.netlify.next/
+.claude/
+data/
+node_modules/
