@@ -217,6 +217,14 @@ function initializeSchema(db: Database.Database) {
       ['PTO Queue', '/manager/pto-queue', '🗓️', '#f59e0b', 3],
       ['Payroll', '/manager/payroll', '💰', '#ec4899', 4],
       ['Settings', '/manager/settings', '⚙️', '#64748b', 5],
+      ['Market POS', 'https://app.marktpos.com/', '🛒', '#0ea5e9', 6],
+      ['Revenue & Expenses', 'https://docs.google.com/spreadsheets/d/1Ixv27SxCO45EEAJwSy9OntV684Kqu18aXoruouHuRfs/edit', '📊', '#16a34a', 7],
+      ['2026 Scheduling Sheet', 'https://docs.google.com/spreadsheets/d/1Zkw_Hn255ohWU6BUkz2EuF9sAzi10bOAfuxFKjxwwVA/edit', '📆', '#7c3aed', 8],
+      ['Payroll Tracker', 'https://docs.google.com/spreadsheets/d/1mbfVPRybxb7N21uuxh-B_DmdJgFZf5PojDwKXtahFOc/edit', '💵', '#db2777', 9],
+      ['Paychex Flex', 'https://login.flex.paychex.com/login_static/UsernameOnly.html', '🏦', '#b45309', 10],
+      ['Gmail', 'https://mail.google.com/mail/u/0/#inbox', '✉️', '#dc2626', 11],
+      ['Finance Dashboard', 'https://docs.google.com/spreadsheets/d/1D9G24Fvq_Z6L-P1LlEiXsUs1z8ebwttcOV1HEQfG8vc/edit', '📈', '#0891b2', 12],
+      ['Google Drive', 'https://drive.google.com/drive/folders/1m2iyH8J2Ap2Ivn2fbEWAnNgR2k9fwgX0', '📁', '#ca8a04', 13],
     ];
     const stmt = db.prepare('INSERT INTO bookmarks (title, url, icon, color, sort_order) VALUES (?, ?, ?, ?, ?)');
     for (const [title, url, icon, color, order] of defaultBookmarks) stmt.run(title, url, icon, color, order);
