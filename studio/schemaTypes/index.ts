@@ -17,6 +17,15 @@ import siteConfig from './siteConfig'
 import testimonial from './testimonial'
 import testimonialsSection from './testimonialsSection'
 
+// PTO / Scheduling schemas
+import employee from './employee'
+import ptoRequest from './ptoRequest'
+import availability from './availability'
+import availabilityOverride from './availabilityOverride'
+import shift from './shift'
+import schedule from './schedule'
+import notification from './notification'
+
 export const schemaTypes = [
   actionButton,
   actionLink,
@@ -36,4 +45,12 @@ export const schemaTypes = [
   siteConfig,
   testimonial,
   testimonialsSection,
+  // PTO / Scheduling
+  employee,
+  ptoRequest,
+  availability,
+  availabilityOverride,
+  shift,
+  schedule,
+  notification,
 ]

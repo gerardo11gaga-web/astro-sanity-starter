@@ -2,9 +2,12 @@ import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import sanity from '@sanity/astro';
 import { sanityConfig } from './src/utils/sanity-client';
+import netlify from '@astrojs/netlify';
 
 // https://astro.build/config
 export default defineConfig({
+    output: 'hybrid',
+    adapter: netlify(),
     image: {
         domains: ['cdn.sanity.io']
     },
