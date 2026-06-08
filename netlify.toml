@@ -1,2 +1,6 @@
-[dev]
-  targetPort = 3000
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+[build]
+  command = "npm run build"
+  publish = ".next"
