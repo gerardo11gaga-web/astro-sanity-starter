@@ -6,6 +6,7 @@ import netlify from '@astrojs/netlify';
 
 // https://astro.build/config
 export default defineConfig({
+    site: 'https://famous-marigold-8718f1.netlify.app',
     output: 'server',
     adapter: netlify(),
     image: {
