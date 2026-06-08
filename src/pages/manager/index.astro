@@ -1,0 +1,96 @@
+---
+export const prerender = false;
+import Layout from '../../layouts/Layout.astro';
+import { writeClient } from '../../utils/sanity-write-client';
+
+const pendingPTO = await writeClient.fetch(`count(*[_type == "ptoRequest" && status == "pending"])`).catch(() => 0);
+const unreadNotifications = await writeClient.fetch(`count(*[_type == "notification" && isRead == false])`).catch(() => 0);
+const latestSchedule = await writeClient.fetch(
+  `*[_type == "schedule"] | order(generatedAt desc)[0]{ _id, weekStartDate, weekEndDate, status, generatedAt }`
+).catch(() => null);
+---
+
+<Layout title="Manager Dashboard">
+  <main class="max-w-7xl mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8">Manager Dashboard</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+      <div class="card bg-base-100 border border-base-200 shadow">
+        <div class="card-body">
+          <h2 class="card-title text-warning">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Pending PTO Requests
+          </h2>
+          <p class="text-4xl font-bold">{pendingPTO}</p>
+          <div class="card-actions">
+            <a href="/manager/pto-queue" class="btn btn-warning btn-sm">Review Queue</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="card bg-base-100 border border-base-200 shadow">
+        <div class="card-body">
+          <h2 class="card-title text-info">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            </svg>
+            Unread Notifications
+          </h2>
+          <p class="text-4xl font-bold">{unreadNotifications}</p>
+          <div class="card-actions">
+            <a href="/manager/pto-queue" class="btn btn-info btn-sm">View All</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="card bg-base-100 border border-base-200 shadow">
+        <div class="card-body">
+          <h2 class="card-title text-success">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            Current Schedule
+          </h2>
+          {latestSchedule ? (
+            <>
+              <p class="text-sm text-base-content/60">{latestSchedule.weekStartDate} &ndash; {latestSchedule.weekEndDate}</p>
+              <span class={`badge ${latestSchedule.status === 'published' ? 'badge-success' : latestSchedule.status === 'approved' ? 'badge-info' : 'badge-warning'}`}>
+                {latestSchedule.status}
+              </span>
+            </>
+          ) : (
+            <p class="text-base-content/60">No schedule yet</p>
+          )}
+          <div class="card-actions mt-2">
+            <a href="/manager/schedule" class="btn btn-success btn-sm">Manage Schedule</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="card bg-base-100 border border-base-200 shadow">
+        <div class="card-body">
+          <h2 class="card-title">Quick Actions</h2>
+          <div class="flex flex-col gap-3">
+            <a href="/manager/pto-queue" class="btn btn-outline">Review PTO Requests</a>
+            <a href="/manager/schedule" class="btn btn-outline">Generate / Review Schedule</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="card bg-base-100 border border-base-200 shadow">
+        <div class="card-body">
+          <h2 class="card-title">Navigation</h2>
+          <ul class="menu menu-lg">
+            <li><a href="/manager/pto-queue">PTO Approval Queue</a></li>
+            <li><a href="/manager/schedule">Schedule Management</a></li>
+            <li><a href="/employee">Employee Portal</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </main>
+</Layout>
