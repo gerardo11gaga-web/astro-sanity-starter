@@ -12,15 +12,15 @@ export const POST: APIRoute = async ({ request }) => {
       return new Response(JSON.stringify({ error: 'weekStart and weekEnd required' }), { status: 400 });
     }
 
-    // Check for pending PTO
+    // Final PTO check before generation
     const pendingPTO = await writeClient.fetch(
-      `*[_type == "ptoRequest" && status == "pending" && startDate <= $weekEnd && endDate >= $weekStart]`,
+      `*[_type == "ptoRequest" && status == "pending" && startDate <= $weekEnd && endDate >= $weekStart]{ _id }`,
       { weekStart, weekEnd }
     );
 
     if (pendingPTO.length > 0) {
       return new Response(
-        JSON.stringify({ error: 'Pending PTO requests must be resolved before generating schedule', pendingCount: pendingPTO.length }),
+        JSON.stringify({ error: 'Cannot generate schedule: pending PTO requests exist for this period', pendingCount: pendingPTO.length }),
         { status: 409 }
       );
     }
@@ -49,10 +49,10 @@ export const POST: APIRoute = async ({ request }) => {
       shifts: result.shifts,
     });
 
-    return new Response(JSON.stringify({ success: true, scheduleId: schedule._id, warnings: result.warnings }), {
-      status: 201,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({ success: true, scheduleId: schedule._id, warnings: result.warnings }),
+      { status: 201, headers: { 'Content-Type': 'application/json' } }
+    );
   } catch (err: any) {
     return new Response(JSON.stringify({ error: err.message }), { status: 500 });
   }
