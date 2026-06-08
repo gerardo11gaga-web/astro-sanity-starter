@@ -1,0 +1,182 @@
+---
+export const prerender = false;
+import Layout from '../../layouts/Layout.astro';
+import { writeClient } from '../../utils/sanity-write-client';
+
+const requests = await writeClient.fetch(`
+  *[_type == "ptoRequest"] | order(submissionDate desc) {
+    _id, requestType, startDate, endDate, reason, status, submissionDate, managerNotes, clarificationMessage,
+    employee->{ _id, name, email, department }
+  }
+`).catch(() => []);
+
+const statusBadge: Record<string, string> = {
+  pending: 'badge-warning',
+  approved: 'badge-success',
+  denied: 'badge-error',
+  'clarification-requested': 'badge-info',
+};
+---
+
+<Layout title="PTO Approval Queue">
+  <main class="max-w-7xl mx-auto px-4 py-8">
+    <div class="flex items-center justify-between mb-6">
+      <h1 class="text-3xl font-bold">PTO Approval Queue</h1>
+      <a href="/manager" class="btn btn-ghost btn-sm">Back to Dashboard</a>
+    </div>
+
+    {requests.length === 0 ? (
+      <div class="alert alert-info">
+        <span>No PTO requests found.</span>
+      </div>
+    ) : (
+      <div class="overflow-x-auto">
+        <table class="table table-zebra w-full">
+          <thead>
+            <tr>
+              <th>Employee</th>
+              <th>Type</th>
+              <th>Dates</th>
+              <th>Reason</th>
+              <th>Submitted</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {requests.map((req: any) => (
+              <tr>
+                <td>
+                  <div class="font-semibold">{req.employee?.name || 'Unknown'}</div>
+                  <div class="text-xs text-base-content/60">{req.employee?.department}</div>
+                </td>
+                <td class="capitalize">{req.requestType?.replace('-', ' ')}</td>
+                <td>
+                  <span class="whitespace-nowrap">{req.startDate}</span>
+                  {req.startDate !== req.endDate && (
+                    <span class="whitespace-nowrap"> &ndash; {req.endDate}</span>
+                  )}
+                </td>
+                <td class="max-w-xs truncate">{req.reason}</td>
+                <td class="whitespace-nowrap text-sm">{req.submissionDate ? new Date(req.submissionDate).toLocaleDateString() : ''}</td>
+                <td>
+                  <span class={`badge ${statusBadge[req.status] || 'badge-ghost'}`}>{req.status}</span>
+                </td>
+                <td>
+                  {req.status === 'pending' && (
+                    <div class="flex gap-1 flex-wrap">
+                      <button
+                        class="btn btn-success btn-xs"
+                        data-action="approve"
+                        data-id={req._id}
+                      >Approve</button>
+                      <button
+                        class="btn btn-error btn-xs"
+                        data-action="deny"
+                        data-id={req._id}
+                      >Deny</button>
+                      <button
+                        class="btn btn-info btn-xs"
+                        data-action="clarify"
+                        data-id={req._id}
+                      >Clarify</button>
+                    </div>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )}
+  </main>
+
+  <!-- Modal -->
+  <dialog id="action-modal" class="modal">
+    <div class="modal-box">
+      <h3 class="font-bold text-lg" id="modal-title">Confirm Action</h3>
+      <div class="py-4">
+        <textarea id="modal-note" class="textarea textarea-bordered w-full" placeholder="Notes / message (optional)"></textarea>
+      </div>
+      <div class="modal-action">
+        <button id="modal-confirm" class="btn btn-primary">Confirm</button>
+        <button id="modal-cancel" class="btn btn-ghost">Cancel</button>
+      </div>
+    </div>
+    <form method="dialog" class="modal-backdrop"><button>close</button></form>
+  </dialog>
+
+  <div id="toast" class="toast toast-top toast-end hidden">
+    <div class="alert" id="toast-inner"><span id="toast-msg"></span></div>
+  </div>
+</Layout>
+
+<script>
+  let pendingAction: { action: string; id: string } | null = null;
+
+  const modal = document.getElementById('action-modal') as HTMLDialogElement;
+  const modalTitle = document.getElementById('modal-title')!;
+  const modalNote = document.getElementById('modal-note') as HTMLTextAreaElement;
+  const modalConfirm = document.getElementById('modal-confirm')!;
+  const modalCancel = document.getElementById('modal-cancel')!;
+
+  document.querySelectorAll('[data-action]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const action = (btn as HTMLElement).dataset.action!;
+      const id = (btn as HTMLElement).dataset.id!;
+      pendingAction = { action, id };
+      modalTitle.textContent = action === 'approve' ? 'Approve PTO Request' : action === 'deny' ? 'Deny PTO Request' : 'Request Clarification';
+      (modalNote as HTMLTextAreaElement).placeholder = action === 'clarify' ? 'Clarification message (required)' : 'Manager notes (optional)';
+      modalNote.value = '';
+      modal.showModal();
+    });
+  });
+
+  modalCancel.addEventListener('click', () => { modal.close(); pendingAction = null; });
+
+  modalConfirm.addEventListener('click', async () => {
+    if (!pendingAction) return;
+    const { action, id } = pendingAction;
+    const note = modalNote.value.trim();
+
+    const urlMap: Record<string, string> = {
+      approve: `/api/pto/${id}/approve`,
+      deny: `/api/pto/${id}/deny`,
+      clarify: `/api/pto/${id}/clarify`,
+    };
+    const bodyMap: Record<string, object> = {
+      approve: { managerNotes: note },
+      deny: { managerNotes: note },
+      clarify: { clarificationMessage: note },
+    };
+
+    try {
+      const res = await fetch(urlMap[action], {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(bodyMap[action]),
+      });
+      const data = await res.json();
+      modal.close();
+      if (res.ok) {
+        showToast('Action completed successfully!', 'alert-success');
+        setTimeout(() => window.location.reload(), 1200);
+      } else {
+        showToast(data.error || 'Error performing action', 'alert-error');
+      }
+    } catch {
+      showToast('Network error', 'alert-error');
+    }
+    pendingAction = null;
+  });
+
+  function showToast(msg: string, cls: string) {
+    const toast = document.getElementById('toast')!;
+    const inner = document.getElementById('toast-inner')!;
+    const msgEl = document.getElementById('toast-msg')!;
+    inner.className = `alert ${cls}`;
+    msgEl.textContent = msg;
+    toast.classList.remove('hidden');
+    setTimeout(() => toast.classList.add('hidden'), 3000);
+  }
+</script>

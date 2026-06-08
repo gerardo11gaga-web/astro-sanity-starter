@@ -23,6 +23,11 @@ const { title, logo, navLinks, 'data-sb-field-path': fieldPath } = Astro.props;
                 </a>
             )
         }
+        <!-- Portal Navigation -->
+        <div class="hidden lg:flex items-center gap-2 ml-2">
+            <a href="/manager" class="btn btn-sm btn-outline">Manager</a>
+            <a href="/employee" class="btn btn-sm btn-outline">Employee</a>
+        </div>
         {
             navLinks && navLinks.length > 0 && (
                 <>
