@@ -1,12 +1,14 @@
-import { auth } from './lib/auth';
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
-export default auth((req) => {
-  const isLoggedIn = !!req.auth;
+export function middleware(req: NextRequest) {
+  const token = req.cookies.get('next-auth.session-token') ?? req.cookies.get('__Secure-next-auth.session-token');
   const isLoginPage = req.nextUrl.pathname === '/login';
-  if (!isLoggedIn && !isLoginPage) {
-    return Response.redirect(new URL('/login', req.url));
+  if (!token && !isLoginPage) {
+    return NextResponse.redirect(new URL('/login', req.url));
   }
-});
+  return NextResponse.next();
+}
 
 export const config = {
   matcher: ['/((?!api/auth|_next/static|_next/image|favicon.ico|manifest.json|sw.js|icons).*)'],
