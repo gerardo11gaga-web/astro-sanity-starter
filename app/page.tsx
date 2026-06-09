@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Plus, Pencil, Trash2, LogOut, Store, X, Check } from 'lucide-react';
+import { Plus, Pencil, Trash2, LogOut, Bell, X, Check, ExternalLink } from 'lucide-react';
 
 interface Bookmark {
   id: number;
@@ -63,10 +63,7 @@ export default function HQPage() {
         fetch('/api/pto?status=pending'),
         fetch('/api/schedule'),
       ]);
-      if (ptoRes.ok) {
-        const pto = await ptoRes.json();
-        setPendingPTO(pto.length);
-      }
+      if (ptoRes.ok) setPendingPTO((await ptoRes.json()).length);
       if (schedRes.ok) {
         const scheds = await schedRes.json();
         if (scheds.length > 0) setScheduleStatus(scheds[0].status);
@@ -107,83 +104,92 @@ export default function HQPage() {
   }
 
   if (status === 'loading') {
-    return <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="animate-spin w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full" />
-    </div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#0f172a' }}>
+        <div className="animate-spin w-8 h-8 border-2 border-[#6366f1] border-t-transparent rounded-full" />
+      </div>
+    );
   }
 
+  const isExternal = (url: string) => url.startsWith('http');
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900">
+    <div className="min-h-screen" style={{ background: '#0f172a' }}>
       {/* Header */}
-      <header className="flex items-center justify-between px-6 py-4">
+      <header className="flex items-center justify-between px-6 py-4 border-b border-[#334155] bg-[#1e293b]">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-indigo-500 rounded-xl flex items-center justify-center">
-            <Store size={20} className="text-white" />
+          <div className="w-8 h-8 bg-[#6366f1] rounded-xl flex items-center justify-center shadow-lg shadow-indigo-900/40 text-base">
+            🏪
           </div>
-          <span className="text-white font-bold text-lg">Store Scheduler</span>
+          <span className="text-[#f1f5f9] font-bold text-base">CLL Carniceria</span>
         </div>
-        <div className="flex items-center gap-3">
-          <span className="text-slate-400 text-sm hidden sm:block">
+        <div className="flex items-center gap-4">
+          <span className="text-[#94a3b8] text-sm hidden sm:block tabular-nums">
             {time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
           </span>
           <button
             onClick={() => signOut({ callbackUrl: '/login' })}
-            className="flex items-center gap-1.5 text-slate-400 hover:text-white text-sm transition-colors px-3 py-1.5 rounded-lg hover:bg-white/10"
+            className="flex items-center gap-1.5 text-[#94a3b8] hover:text-[#f1f5f9] text-sm transition-colors px-3 py-1.5 rounded-lg hover:bg-[#334155]"
           >
-            <LogOut size={15} />
-            Sign out
+            <LogOut size={14} />
+            <span className="hidden sm:block">Sign out</span>
           </button>
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-6 py-8">
+      <main className="max-w-6xl mx-auto px-6 py-8">
         {/* Greeting */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white mb-1">
+          <h1 className="text-2xl font-bold text-[#f1f5f9] mb-1">
             {getGreeting()}, {session?.user?.email?.split('@')[0] || 'there'} 👋
           </h1>
-          <p className="text-slate-400">
+          <p className="text-[#94a3b8] text-sm">
             {time.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
           </p>
         </div>
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
-          <div className="bg-white/10 backdrop-blur rounded-xl p-4 border border-white/10">
-            <p className="text-slate-400 text-xs font-medium uppercase tracking-wide mb-1">Pending PTO</p>
-            <p className="text-2xl font-bold text-white">{pendingPTO}</p>
-            {pendingPTO > 0 && (
-              <Link href="/manager/pto-queue" className="text-yellow-400 text-xs hover:underline">Review now →</Link>
+        {/* Stats row */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-10">
+          <div className="bg-[#1e293b] rounded-2xl p-5 border border-[#334155]">
+            <p className="text-[#94a3b8] text-xs font-medium uppercase tracking-wide mb-2">Pending PTO</p>
+            <p className="text-3xl font-bold text-[#f1f5f9] mb-1">{pendingPTO}</p>
+            {pendingPTO > 0 ? (
+              <Link href="/manager/pto-queue" className="text-[#f59e0b] text-xs hover:underline">Review now →</Link>
+            ) : (
+              <span className="text-[#94a3b8] text-xs">All clear</span>
             )}
           </div>
-          <div className="bg-white/10 backdrop-blur rounded-xl p-4 border border-white/10">
-            <p className="text-slate-400 text-xs font-medium uppercase tracking-wide mb-1">Schedule</p>
-            <p className="text-2xl font-bold text-white capitalize">{scheduleStatus === 'none' ? '—' : scheduleStatus}</p>
-            <Link href="/manager/schedule" className="text-indigo-400 text-xs hover:underline">Manage →</Link>
+          <div className="bg-[#1e293b] rounded-2xl p-5 border border-[#334155]">
+            <p className="text-[#94a3b8] text-xs font-medium uppercase tracking-wide mb-2">Schedule</p>
+            <p className="text-lg font-bold text-[#f1f5f9] capitalize mb-1">
+              {scheduleStatus === 'none' ? '—' : scheduleStatus}
+            </p>
+            <Link href="/manager/schedule" className="text-[#6366f1] text-xs hover:underline">Manage →</Link>
           </div>
-          <div className="bg-white/10 backdrop-blur rounded-xl p-4 border border-white/10 col-span-2 sm:col-span-1">
-            <p className="text-slate-400 text-xs font-medium uppercase tracking-wide mb-1">Quick Access</p>
-            <p className="text-sm text-white mt-1">Your bookmarks below</p>
+          <div className="bg-[#1e293b] rounded-2xl p-5 border border-[#334155] col-span-2 sm:col-span-1">
+            <p className="text-[#94a3b8] text-xs font-medium uppercase tracking-wide mb-2">Manager Portal</p>
+            <p className="text-[#f1f5f9] text-sm mb-1">Full workforce tools</p>
+            <Link href="/manager" className="text-[#6366f1] text-xs hover:underline">Open portal →</Link>
           </div>
         </div>
 
-        {/* Bookmarks Grid */}
-        <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-white font-semibold text-lg">Quick Access</h2>
+        {/* Bookmarks */}
+        <div className="mb-5 flex items-center justify-between">
+          <h2 className="text-[#f1f5f9] font-semibold text-lg">Quick Access</h2>
           <button
             onClick={() => {
               setEditBookmark(null);
               setForm({ title: '', url: '', icon: '🔗', color: '#6366f1' });
               setShowAddModal(true);
             }}
-            className="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white text-sm px-4 py-2 rounded-lg transition-colors border border-white/10"
+            className="flex items-center gap-2 bg-[#334155] hover:bg-[#475569] text-[#f1f5f9] text-sm px-4 py-2 rounded-xl transition-colors border border-[#475569]"
           >
-            <Plus size={15} />
+            <Plus size={14} />
             Add Tile
           </button>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {bookmarks.map(b => (
             <div
               key={b.id}
@@ -191,28 +197,38 @@ export default function HQPage() {
               onMouseEnter={() => setHoveredId(b.id)}
               onMouseLeave={() => setHoveredId(null)}
             >
-              <Link href={b.url}>
+              <Link
+                href={b.url}
+                target={isExternal(b.url) ? '_blank' : undefined}
+                rel={isExternal(b.url) ? 'noopener noreferrer' : undefined}
+              >
                 <div
-                  className="rounded-2xl p-5 flex flex-col items-center gap-3 cursor-pointer hover:scale-105 transition-transform shadow-lg border border-white/10"
-                  style={{ backgroundColor: b.color + 'dd' }}
+                  className="rounded-2xl p-5 flex flex-col items-center gap-3 cursor-pointer transition-all duration-200 border shadow-lg hover:-translate-y-1 hover:shadow-xl"
+                  style={{
+                    backgroundColor: b.color + '22',
+                    borderColor: b.color + '44',
+                  }}
                 >
                   <span className="text-3xl">{b.icon}</span>
-                  <span className="text-white font-semibold text-sm text-center leading-tight">{b.title}</span>
+                  <span className="text-[#f1f5f9] font-medium text-sm text-center leading-tight">{b.title}</span>
+                  {isExternal(b.url) && hoveredId === b.id && (
+                    <ExternalLink size={12} className="text-[#94a3b8] absolute top-3 right-3" />
+                  )}
                 </div>
               </Link>
               {hoveredId === b.id && (
                 <div className="absolute top-2 right-2 flex gap-1">
                   <button
                     onClick={e => { e.preventDefault(); openEdit(b); }}
-                    className="w-6 h-6 bg-white/90 rounded-md flex items-center justify-center text-gray-700 hover:bg-white shadow"
+                    className="w-6 h-6 bg-[#334155] rounded-lg flex items-center justify-center text-[#94a3b8] hover:text-[#f1f5f9] shadow"
                   >
-                    <Pencil size={12} />
+                    <Pencil size={11} />
                   </button>
                   <button
                     onClick={e => { e.preventDefault(); handleDelete(b.id); }}
-                    className="w-6 h-6 bg-white/90 rounded-md flex items-center justify-center text-red-600 hover:bg-white shadow"
+                    className="w-6 h-6 bg-[#334155] rounded-lg flex items-center justify-center text-[#94a3b8] hover:text-[#ef4444] shadow"
                   >
-                    <Trash2 size={12} />
+                    <Trash2 size={11} />
                   </button>
                 </div>
               )}
@@ -224,53 +240,53 @@ export default function HQPage() {
       {/* Add/Edit Modal */}
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/60" onClick={() => setShowAddModal(false)} />
-          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowAddModal(false)} />
+          <div className="relative bg-[#1e293b] border border-[#334155] rounded-2xl shadow-2xl w-full max-w-md p-6">
             <div className="flex items-center justify-between mb-5">
-              <h3 className="font-semibold text-gray-900 text-lg">{editBookmark ? 'Edit Tile' : 'Add Tile'}</h3>
-              <button onClick={() => setShowAddModal(false)} className="text-gray-400 hover:text-gray-600">
+              <h3 className="font-semibold text-[#f1f5f9] text-lg">{editBookmark ? 'Edit Tile' : 'Add Tile'}</h3>
+              <button onClick={() => setShowAddModal(false)} className="text-[#94a3b8] hover:text-[#f1f5f9] transition-colors">
                 <X size={20} />
               </button>
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                <label className="block text-sm font-medium text-[#94a3b8] mb-1.5">Title</label>
                 <input
                   value={form.title}
                   onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
                   placeholder="Schedule Manager"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:border-indigo-500 outline-none"
+                  className="w-full px-3 py-2.5 bg-[#0f172a] border border-[#334155] rounded-xl text-sm text-[#f1f5f9] placeholder-[#475569] focus:border-[#6366f1] outline-none transition-colors"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">URL</label>
+                <label className="block text-sm font-medium text-[#94a3b8] mb-1.5">URL</label>
                 <input
                   value={form.url}
                   onChange={e => setForm(f => ({ ...f, url: e.target.value }))}
-                  placeholder="/manager/schedule"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:border-indigo-500 outline-none"
+                  placeholder="/manager/schedule or https://..."
+                  className="w-full px-3 py-2.5 bg-[#0f172a] border border-[#334155] rounded-xl text-sm text-[#f1f5f9] placeholder-[#475569] focus:border-[#6366f1] outline-none transition-colors"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Icon (emoji)</label>
+                <label className="block text-sm font-medium text-[#94a3b8] mb-1.5">Icon (emoji)</label>
                 <input
                   value={form.icon}
                   onChange={e => setForm(f => ({ ...f, icon: e.target.value }))}
                   placeholder="📅"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:border-indigo-500 outline-none"
+                  className="w-full px-3 py-2.5 bg-[#0f172a] border border-[#334155] rounded-xl text-sm text-[#f1f5f9] placeholder-[#475569] focus:border-[#6366f1] outline-none transition-colors"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Color</label>
+                <label className="block text-sm font-medium text-[#94a3b8] mb-2">Color</label>
                 <div className="flex flex-wrap gap-2">
                   {COLORS.map(c => (
                     <button
                       key={c}
                       onClick={() => setForm(f => ({ ...f, color: c }))}
-                      className="w-8 h-8 rounded-full transition-transform hover:scale-110 flex items-center justify-center"
-                      style={{ backgroundColor: c }}
+                      className="w-8 h-8 rounded-full transition-transform hover:scale-110 flex items-center justify-center border-2"
+                      style={{ backgroundColor: c, borderColor: form.color === c ? 'white' : 'transparent' }}
                     >
-                      {form.color === c && <Check size={14} className="text-white" />}
+                      {form.color === c && <Check size={13} className="text-white" />}
                     </button>
                   ))}
                 </div>
@@ -279,13 +295,13 @@ export default function HQPage() {
             <div className="flex gap-3 mt-6">
               <button
                 onClick={() => setShowAddModal(false)}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                className="flex-1 px-4 py-2.5 border border-[#334155] rounded-xl text-sm text-[#94a3b8] hover:bg-[#334155] hover:text-[#f1f5f9] transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSaveBookmark}
-                className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"
+                className="flex-1 px-4 py-2.5 bg-[#6366f1] hover:bg-[#4f46e5] text-white rounded-xl text-sm font-medium transition-colors shadow-lg shadow-indigo-900/30"
               >
                 {editBookmark ? 'Save Changes' : 'Add Tile'}
               </button>

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDb } from '@/lib/db';
+import { run } from '@/lib/db';
 
 export async function DELETE(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  getDb().prepare('DELETE FROM bookmarks WHERE id = ?').run(id);
+  await run('DELETE FROM bookmarks WHERE id = ?', [id]);
   return NextResponse.json({ success: true });
 }

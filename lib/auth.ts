@@ -18,7 +18,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         } catch {
           // Tables may already exist
         }
-        const rows = await query('SELECT * FROM users WHERE email = ?', [credentials.email]);
+        const rows = await query('SELECT * FROM users WHERE email = ?', [credentials.email as string]);
         const user = rows[0] as any;
         if (!user) return null;
         const valid = await bcrypt.compare(credentials.password as string, user.password_hash as string);

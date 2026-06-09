@@ -26,11 +26,11 @@ export function Modal({ open, onClose, title, children, className }: ModalProps)
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-      <div className={cn('relative bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto', className)}>
+      <div className={cn('relative rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto', className)} style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
         {title && (
-          <div className="flex items-center justify-between p-6 border-b">
-            <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
-            <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
+          <div className="flex items-center justify-between p-6 border-b" style={{ borderColor: 'var(--border)' }}>
+            <h2 className="text-lg font-semibold" style={{ color: 'var(--text)' }}>{title}</h2>
+            <button onClick={onClose} className="transition-colors" style={{ color: 'var(--muted)' }} onMouseEnter={e => (e.currentTarget.style.color = 'var(--text)')} onMouseLeave={e => (e.currentTarget.style.color = 'var(--muted)')}>
               <X size={20} />
             </button>
           </div>

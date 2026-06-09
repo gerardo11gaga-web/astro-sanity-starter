@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDb } from '@/lib/db';
+import { query } from '@/lib/db';
 
 export async function POST(req: NextRequest) {
   const { start_date, end_date } = await req.json();
-  const db = getDb();
 
-  const shifts = db.prepare(`
+  const shifts = await query(`
     SELECT ss.employee_id, ss.department_id, ss.hours_worked, ss.date,
            e.first_name, e.last_name, e.employee_type, e.max_hours_per_week,
            d.name as department_name,
@@ -16,7 +15,7 @@ export async function POST(req: NextRequest) {
     LEFT JOIN employee_departments ed ON ed.employee_id = ss.employee_id AND ed.department_id = ss.department_id
     WHERE ss.date BETWEEN ? AND ?
     ORDER BY e.last_name, e.first_name, ss.date
-  `).all(start_date, end_date) as any[];
+  `, [start_date, end_date]) as any[];
 
   const byEmployee: Record<number, any> = {};
   for (const s of shifts) {

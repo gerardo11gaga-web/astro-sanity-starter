@@ -1,4 +1,4 @@
-import { createClient } from '@libsql/client';
+import { createClient, type InValue } from '@libsql/client';
 
 const client = createClient({
   url: process.env.TURSO_DATABASE_URL || 'file:local.db',
@@ -7,7 +7,7 @@ const client = createClient({
 
 export type Row = Record<string, unknown>;
 
-export async function query(sql: string, args: unknown[] = []): Promise<Row[]> {
+export async function query(sql: string, args: InValue[] = []): Promise<Row[]> {
   const result = await client.execute({ sql, args });
   return result.rows.map(row => {
     const obj: Row = {};
@@ -18,7 +18,7 @@ export async function query(sql: string, args: unknown[] = []): Promise<Row[]> {
   });
 }
 
-export async function run(sql: string, args: unknown[] = []): Promise<{ lastInsertRowid: number | bigint; changes: number }> {
+export async function run(sql: string, args: (string | number | null | bigint | ArrayBuffer | boolean)[] = []): Promise<{ lastInsertRowid: number | bigint; changes: number }> {
   const result = await client.execute({ sql, args });
   return {
     lastInsertRowid: result.lastInsertRowid ?? 0,

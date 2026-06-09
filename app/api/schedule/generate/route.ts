@@ -1,18 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDb } from '@/lib/db';
+import { query, run } from '@/lib/db';
 import { generateSchedule } from '@/lib/scheduler';
 
 export async function POST(req: NextRequest) {
   const { week_start, week_end } = await req.json();
-  const db = getDb();
 
-  const pending = db.prepare(`
+  const pendingRows = await query(`
     SELECT COUNT(*) as cnt FROM pto_requests
     WHERE status = 'pending' AND start_date <= ? AND end_date >= ?
-  `).get(week_end, week_start) as any;
-  if (pending.cnt > 0) {
+  `, [week_end, week_start]);
+  const cnt = (pendingRows[0]?.cnt as number) || 0;
+  if (cnt > 0) {
     return NextResponse.json(
-      { error: `Cannot generate schedule: ${pending.cnt} pending PTO request(s) overlap this period.` },
+      { error: `Cannot generate schedule: ${cnt} pending PTO request(s) overlap this period.` },
       { status: 409 }
     );
   }
@@ -25,42 +25,54 @@ export async function POST(req: NextRequest) {
     dates.push(d.toISOString().split('T')[0]);
   }
 
-  const employees = db.prepare('SELECT * FROM employees WHERE active = 1').all() as any[];
+  const employees = await query('SELECT * FROM employees WHERE active = 1') as any[];
   for (const emp of employees) {
-    emp.departments = db.prepare('SELECT ed.*, d.name as department_name FROM employee_departments ed JOIN departments d ON ed.department_id = d.id WHERE ed.employee_id = ?').all(emp.id);
-    emp.availability = db.prepare('SELECT * FROM availability_rules WHERE employee_id = ?').all(emp.id);
-    emp.overrides = db.prepare('SELECT * FROM availability_overrides WHERE employee_id = ? AND date BETWEEN ? AND ?').all(emp.id, week_start, week_end);
-    emp.approvedPTO = db.prepare("SELECT * FROM pto_requests WHERE employee_id = ? AND status = 'approved' AND start_date <= ? AND end_date >= ?").all(emp.id, week_end, week_start);
+    emp.departments = await query(
+      'SELECT ed.*, d.name as department_name FROM employee_departments ed JOIN departments d ON ed.department_id = d.id WHERE ed.employee_id = ?',
+      [emp.id]
+    );
+    emp.availability = await query('SELECT * FROM availability_rules WHERE employee_id = ?', [emp.id]);
+    emp.overrides = await query(
+      'SELECT * FROM availability_overrides WHERE employee_id = ? AND date BETWEEN ? AND ?',
+      [emp.id, week_start, week_end]
+    );
+    emp.approvedPTO = await query(
+      "SELECT * FROM pto_requests WHERE employee_id = ? AND status = 'approved' AND start_date <= ? AND end_date >= ?",
+      [emp.id, week_end, week_start]
+    );
   }
 
-  const coverageRules = db.prepare(`
+  const coverageRules = await query(`
     SELECT dcr.*, d.name as department_name, sd.start_time, sd.end_time
     FROM departments_coverage_rules dcr
     JOIN departments d ON dcr.department_id = d.id
     LEFT JOIN shift_definitions sd ON sd.name = dcr.shift_type AND sd.department_id = dcr.department_id
     WHERE sd.id IS NOT NULL
-  `).all() as any[];
+  `) as any[];
 
-  const storeRulesRaw = db.prepare('SELECT * FROM store_rules').all() as any[];
+  const storeRulesRaw = await query('SELECT * FROM store_rules') as any[];
   const storeRules: Record<string, string> = {};
-  for (const r of storeRulesRaw) storeRules[r.rule_key] = r.rule_value;
+  for (const r of storeRulesRaw) storeRules[r.rule_key as string] = r.rule_value as string;
 
   const { shifts, warnings } = generateSchedule(employees, coverageRules, dates, storeRules);
 
-  const existing = db.prepare('SELECT id FROM schedules WHERE week_start = ?').get(week_start) as any;
+  const existingRows = await query('SELECT id FROM schedules WHERE week_start = ?', [week_start]);
+  const existing = existingRows[0] as any;
   let scheduleId: number;
   if (existing) {
-    db.prepare('DELETE FROM schedule_shifts WHERE schedule_id = ?').run(existing.id);
-    db.prepare("UPDATE schedules SET status='draft', generated_at=CURRENT_TIMESTAMP WHERE id=?").run(existing.id);
-    scheduleId = existing.id;
+    await run('DELETE FROM schedule_shifts WHERE schedule_id = ?', [existing.id]);
+    await run("UPDATE schedules SET status='draft', generated_at=CURRENT_TIMESTAMP WHERE id=?", [existing.id]);
+    scheduleId = existing.id as number;
   } else {
-    const res = db.prepare('INSERT INTO schedules (week_start, week_end) VALUES (?, ?)').run(week_start, week_end);
+    const res = await run('INSERT INTO schedules (week_start, week_end) VALUES (?, ?)', [week_start, week_end]);
     scheduleId = res.lastInsertRowid as number;
   }
 
-  const insertShift = db.prepare('INSERT INTO schedule_shifts (schedule_id, employee_id, department_id, date, start_time, end_time, position, hours_worked) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
   for (const s of shifts) {
-    insertShift.run(scheduleId, s.employee_id, s.department_id, s.date, s.start_time, s.end_time, s.position, s.hours);
+    await run(
+      'INSERT INTO schedule_shifts (schedule_id, employee_id, department_id, date, start_time, end_time, position, hours_worked) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      [scheduleId, s.employee_id, s.department_id, s.date, s.start_time, s.end_time, s.position, s.hours]
+    );
   }
 
   return NextResponse.json({ scheduleId, shiftCount: shifts.length, warnings });
