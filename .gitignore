@@ -28,3 +28,4 @@ pnpm-debug.log*
 .claude/
 data/
 node_modules/
+.next/
