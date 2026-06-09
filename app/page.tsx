@@ -15,8 +15,8 @@ interface Bookmark {
 }
 
 const COLORS = [
-  '#6366f1', '#22c55e', '#f59e0b', '#ec4899', '#3b82f6',
-  '#ef4444', '#8b5cf6', '#64748b', '#06b6d4', '#f97316',
+  '#9B2335', '#C9A84C', '#16803C', '#B45309', '#3b82f6',
+  '#8b5cf6', '#ec4899', '#06b6d4', '#64748b', '#f97316',
 ];
 
 function getGreeting() {
@@ -26,13 +26,31 @@ function getGreeting() {
   return 'Good evening';
 }
 
+const CathedralLogo = () => (
+  <svg width="32" height="32" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="28" cy="28" r="27" stroke="#C9A84C" strokeWidth="1.5"/>
+    <g stroke="#9B2335" strokeWidth="1.2" fill="none">
+      <rect x="18" y="30" width="20" height="16"/>
+      <path d="M18 30 L28 20 L38 30"/>
+      <rect x="24" y="36" width="8" height="10"/>
+      <rect x="26" y="22" width="4" height="6"/>
+      <line x1="28" y1="16" x2="28" y2="20"/>
+      <line x1="26" y1="18" x2="30" y2="18"/>
+      <rect x="14" y="34" width="6" height="12"/>
+      <path d="M14 34 L17 28 L20 34"/>
+      <rect x="36" y="34" width="6" height="12"/>
+      <path d="M36 34 L39 28 L42 34"/>
+    </g>
+  </svg>
+);
+
 export default function HQPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editBookmark, setEditBookmark] = useState<Bookmark | null>(null);
-  const [form, setForm] = useState({ title: '', url: '', icon: '🔗', color: '#6366f1' });
+  const [form, setForm] = useState({ title: '', url: '', icon: '🔗', color: '#9B2335' });
   const [time, setTime] = useState(new Date());
   const [pendingPTO, setPendingPTO] = useState(0);
   const [scheduleStatus, setScheduleStatus] = useState<string>('none');
@@ -88,7 +106,7 @@ export default function HQPage() {
     }
     setShowAddModal(false);
     setEditBookmark(null);
-    setForm({ title: '', url: '', icon: '🔗', color: '#6366f1' });
+    setForm({ title: '', url: '', icon: '🔗', color: '#9B2335' });
     fetchBookmarks();
   }
 
@@ -105,8 +123,8 @@ export default function HQPage() {
 
   if (status === 'loading') {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#0f172a' }}>
-        <div className="animate-spin w-8 h-8 border-2 border-[#6366f1] border-t-transparent rounded-full" />
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg)' }}>
+        <div className="animate-spin w-8 h-8 border-2 rounded-full" style={{ borderColor: 'var(--primary)', borderTopColor: 'transparent' }} />
       </div>
     );
   }
@@ -114,28 +132,47 @@ export default function HQPage() {
   const isExternal = (url: string) => url.startsWith('http');
 
   return (
-    <div className="min-h-screen" style={{ background: '#0f172a' }}>
+    <div className="min-h-screen" style={{ background: 'var(--bg)' }}>
       {/* Header */}
-      <header className="flex items-center justify-between px-6 py-4 border-b border-[#334155] bg-[#1e293b]">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-[#6366f1] rounded-xl flex items-center justify-center shadow-lg shadow-indigo-900/40 text-base">
-            🏪
-          </div>
-          <span className="text-[#f1f5f9] font-bold text-base">CLL Carniceria</span>
+      <header style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '0.875rem 1.5rem',
+        borderBottom: '1px solid var(--border)',
+        background: 'var(--surface)',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <CathedralLogo />
+          <span style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: '1.125rem', color: 'var(--text)' }}>
+            CLL Scheduler
+          </span>
         </div>
-        <div className="flex items-center gap-3">
-          <span className="text-[#94a3b8] text-sm hidden sm:block tabular-nums">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <span style={{ color: 'var(--text-muted)', fontSize: '0.875rem', fontVariantNumeric: 'tabular-nums' }} className="hidden sm:block">
             {time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
           </span>
           {pendingPTO > 0 && (
-            <Link href="/manager/pto-queue" className="relative p-2 text-[#94a3b8] hover:text-[#f1f5f9] rounded-lg hover:bg-[#334155] transition-colors">
+            <Link href="/manager/pto-queue" style={{ position: 'relative', padding: '0.5rem', color: 'var(--text-muted)', borderRadius: '8px', display: 'flex' }}>
               <Bell size={16} />
-              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-[#f59e0b] rounded-full text-[9px] font-bold text-white flex items-center justify-center">{pendingPTO}</span>
+              <span style={{
+                position: 'absolute', top: '-2px', right: '-2px',
+                width: '16px', height: '16px', background: 'var(--warning)',
+                borderRadius: '50%', fontSize: '9px', fontWeight: 700,
+                color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>{pendingPTO}</span>
             </Link>
           )}
           <button
             onClick={() => signOut({ callbackUrl: '/login' })}
-            className="flex items-center gap-1.5 text-[#94a3b8] hover:text-[#f1f5f9] text-sm transition-colors px-3 py-1.5 rounded-lg hover:bg-[#334155]"
+            style={{
+              display: 'flex', alignItems: 'center', gap: '0.375rem',
+              color: 'var(--text-muted)', fontSize: '0.875rem',
+              padding: '0.375rem 0.75rem', borderRadius: '8px',
+              background: 'none', border: 'none', cursor: 'pointer',
+            }}
+            onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface-alt)')}
+            onMouseLeave={e => (e.currentTarget.style.background = 'none')}
           >
             <LogOut size={14} />
             <span className="hidden sm:block">Sign out</span>
@@ -143,52 +180,91 @@ export default function HQPage() {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-6 py-8">
+      <main style={{ maxWidth: '72rem', margin: '0 auto', padding: '2rem 1.5rem' }}>
         {/* Greeting */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-[#f1f5f9] mb-1">
-            {getGreeting()}, {session?.user?.email?.split('@')[0] || 'there'} 👋
+        <div style={{ marginBottom: '2rem' }}>
+          <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.75rem', fontWeight: 700, color: 'var(--text)', marginBottom: '0.25rem' }}>
+            {getGreeting()}, {session?.user?.email?.split('@')[0] || 'there'}
           </h1>
-          <p className="text-[#94a3b8] text-sm">
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>
             {time.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
           </p>
         </div>
 
         {/* Stats row */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-10">
-          <div className="bg-[#1e293b] rounded-2xl p-5 border border-[#334155]">
-            <p className="text-[#94a3b8] text-xs font-medium uppercase tracking-wide mb-2">Pending PTO</p>
-            <p className="text-3xl font-bold text-[#f1f5f9] mb-1">{pendingPTO}</p>
-            {pendingPTO > 0 ? (
-              <Link href="/manager/pto-queue" className="text-[#f59e0b] text-xs hover:underline">Review now →</Link>
-            ) : (
-              <span className="text-[#94a3b8] text-xs">All clear</span>
-            )}
-          </div>
-          <div className="bg-[#1e293b] rounded-2xl p-5 border border-[#334155]">
-            <p className="text-[#94a3b8] text-xs font-medium uppercase tracking-wide mb-2">Schedule</p>
-            <p className="text-lg font-bold text-[#f1f5f9] capitalize mb-1">
-              {scheduleStatus === 'none' ? '—' : scheduleStatus}
-            </p>
-            <Link href="/manager/schedule" className="text-[#6366f1] text-xs hover:underline">Manage →</Link>
-          </div>
-          <div className="bg-[#1e293b] rounded-2xl p-5 border border-[#334155] col-span-2 sm:col-span-1">
-            <p className="text-[#94a3b8] text-xs font-medium uppercase tracking-wide mb-2">Manager Portal</p>
-            <p className="text-[#f1f5f9] text-sm mb-1">Full workforce tools</p>
-            <Link href="/manager" className="text-[#6366f1] text-xs hover:underline">Open portal →</Link>
-          </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4" style={{ marginBottom: '2.5rem' }}>
+          {[
+            {
+              label: 'Pending PTO',
+              value: pendingPTO,
+              link: pendingPTO > 0 ? { href: '/manager/pto-queue', text: 'Review now →', color: 'var(--warning)' } : null,
+              sub: pendingPTO === 0 ? 'All clear' : null,
+            },
+            {
+              label: 'Schedule',
+              value: scheduleStatus === 'none' ? '—' : scheduleStatus,
+              link: { href: '/manager/schedule', text: 'Manage →', color: 'var(--primary)' },
+              valueStyle: { textTransform: 'capitalize' as const, fontSize: '1.125rem' },
+            },
+            {
+              label: 'Manager Portal',
+              value: null,
+              sub: 'Full workforce tools',
+              link: { href: '/manager', text: 'Open portal →', color: 'var(--primary)' },
+              colSpan: true,
+            },
+          ].map((stat, i) => (
+            <div
+              key={i}
+              style={{
+                background: 'var(--surface)',
+                borderRadius: '12px',
+                padding: '1.25rem',
+                border: '1px solid var(--border)',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+              }}
+              className={stat.colSpan ? 'col-span-2 sm:col-span-1' : ''}
+            >
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.5rem' }}>
+                {stat.label}
+              </p>
+              {stat.value !== null && (
+                <p style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--primary)', marginBottom: '0.25rem', ...(stat.valueStyle || {}) }}>
+                  {stat.value}
+                </p>
+              )}
+              {stat.sub && (
+                <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>{stat.sub}</p>
+              )}
+              {stat.link && (
+                <Link href={stat.link.href} style={{ fontSize: '0.75rem', color: stat.link.color }}>
+                  {stat.link.text}
+                </Link>
+              )}
+            </div>
+          ))}
         </div>
 
         {/* Bookmarks */}
-        <div className="mb-5 flex items-center justify-between">
-          <h2 className="text-[#f1f5f9] font-semibold text-lg">Quick Access</h2>
+        <div style={{ marginBottom: '1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.25rem', fontWeight: 600, color: 'var(--text)' }}>
+            Quick Access
+          </h2>
           <button
             onClick={() => {
               setEditBookmark(null);
-              setForm({ title: '', url: '', icon: '🔗', color: '#6366f1' });
+              setForm({ title: '', url: '', icon: '🔗', color: '#9B2335' });
               setShowAddModal(true);
             }}
-            className="flex items-center gap-2 bg-[#334155] hover:bg-[#475569] text-[#f1f5f9] text-sm px-4 py-2 rounded-xl transition-colors border border-[#475569]"
+            style={{
+              display: 'flex', alignItems: 'center', gap: '0.5rem',
+              background: 'var(--surface)', color: 'var(--primary)',
+              border: '1px solid var(--primary)', borderRadius: '8px',
+              padding: '0.5rem 1rem', fontSize: '0.875rem', fontWeight: 500,
+              cursor: 'pointer',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'var(--primary-light)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'var(--surface)'; }}
           >
             <Plus size={14} />
             Add Tile
@@ -209,30 +285,57 @@ export default function HQPage() {
                 rel={isExternal(b.url) ? 'noopener noreferrer' : undefined}
               >
                 <div
-                  className="rounded-2xl p-5 flex flex-col items-center gap-3 cursor-pointer transition-all duration-200 border shadow-lg hover:-translate-y-1 hover:shadow-xl"
                   style={{
-                    backgroundColor: b.color + '22',
-                    borderColor: b.color + '44',
+                    background: 'var(--surface)',
+                    border: `1px solid var(--border)`,
+                    borderLeft: `4px solid ${b.color}`,
+                    borderRadius: '12px',
+                    padding: '1.25rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '0.75rem',
+                    cursor: 'pointer',
+                    transition: 'background 0.15s, transform 0.15s',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+                  }}
+                  onMouseEnter={e => {
+                    (e.currentTarget as HTMLDivElement).style.background = 'var(--surface-alt)';
+                    (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-2px)';
+                  }}
+                  onMouseLeave={e => {
+                    (e.currentTarget as HTMLDivElement).style.background = 'var(--surface)';
+                    (e.currentTarget as HTMLDivElement).style.transform = 'none';
                   }}
                 >
-                  <span className="text-3xl">{b.icon}</span>
-                  <span className="text-[#f1f5f9] font-medium text-sm text-center leading-tight">{b.title}</span>
+                  <span style={{ fontSize: '1.875rem' }}>{b.icon}</span>
+                  <span style={{ color: 'var(--text)', fontWeight: 500, fontSize: '0.875rem', textAlign: 'center', lineHeight: 1.3 }}>{b.title}</span>
                   {isExternal(b.url) && hoveredId === b.id && (
-                    <ExternalLink size={12} className="text-[#94a3b8] absolute top-3 right-3" />
+                    <ExternalLink size={12} style={{ color: 'var(--text-light)', position: 'absolute', top: '0.75rem', right: '2.5rem' }} />
                   )}
                 </div>
               </Link>
               {hoveredId === b.id && (
-                <div className="absolute top-2 right-2 flex gap-1">
+                <div style={{ position: 'absolute', top: '0.5rem', right: '0.5rem', display: 'flex', gap: '0.25rem' }}>
                   <button
                     onClick={e => { e.preventDefault(); openEdit(b); }}
-                    className="w-6 h-6 bg-[#334155] rounded-lg flex items-center justify-center text-[#94a3b8] hover:text-[#f1f5f9] shadow"
+                    style={{
+                      width: '24px', height: '24px', background: 'var(--surface)', border: '1px solid var(--border)',
+                      borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      color: 'var(--text-muted)', cursor: 'pointer', boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+                    }}
                   >
                     <Pencil size={11} />
                   </button>
                   <button
                     onClick={e => { e.preventDefault(); handleDelete(b.id); }}
-                    className="w-6 h-6 bg-[#334155] rounded-lg flex items-center justify-center text-[#94a3b8] hover:text-[#ef4444] shadow"
+                    style={{
+                      width: '24px', height: '24px', background: 'var(--surface)', border: '1px solid var(--border)',
+                      borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      color: 'var(--text-muted)', cursor: 'pointer', boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+                    }}
+                    onMouseEnter={e => (e.currentTarget.style.color = 'var(--danger)')}
+                    onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}
                   >
                     <Trash2 size={11} />
                   </button>
@@ -245,69 +348,90 @@ export default function HQPage() {
 
       {/* Add/Edit Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowAddModal(false)} />
-          <div className="relative bg-[#1e293b] border border-[#334155] rounded-2xl shadow-2xl w-full max-w-md p-6">
-            <div className="flex items-center justify-between mb-5">
-              <h3 className="font-semibold text-[#f1f5f9] text-lg">{editBookmark ? 'Edit Tile' : 'Add Tile'}</h3>
-              <button onClick={() => setShowAddModal(false)} className="text-[#94a3b8] hover:text-[#f1f5f9] transition-colors">
+        <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }} onClick={() => setShowAddModal(false)} />
+          <div style={{
+            position: 'relative',
+            background: 'var(--surface)',
+            border: '1px solid var(--border)',
+            borderRadius: '16px',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+            width: '100%', maxWidth: '28rem',
+            padding: '1.5rem',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
+              <h3 style={{ fontFamily: "'Playfair Display', serif", fontWeight: 600, color: 'var(--text)', fontSize: '1.125rem' }}>
+                {editBookmark ? 'Edit Tile' : 'Add Tile'}
+              </h3>
+              <button onClick={() => setShowAddModal(false)} style={{ color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', display: 'flex' }}>
                 <X size={20} />
               </button>
             </div>
-            <div className="space-y-4">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {(['title', 'url', 'icon'] as const).map(field => (
+                <div key={field}>
+                  <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-muted)', marginBottom: '0.375rem', textTransform: 'capitalize' }}>
+                    {field === 'icon' ? 'Icon (emoji)' : field === 'url' ? 'URL' : 'Title'}
+                  </label>
+                  <input
+                    value={form[field]}
+                    onChange={e => setForm(f => ({ ...f, [field]: e.target.value }))}
+                    placeholder={field === 'title' ? 'Schedule Manager' : field === 'url' ? '/manager/schedule or https://...' : '📅'}
+                    style={{
+                      width: '100%', padding: '0.625rem 0.875rem',
+                      background: 'var(--surface)', border: '1px solid var(--border)',
+                      borderRadius: '8px', fontSize: '0.875rem', color: 'var(--text)', outline: 'none',
+                    }}
+                    onFocus={e => (e.currentTarget.style.borderColor = 'var(--primary)')}
+                    onBlur={e => (e.currentTarget.style.borderColor = 'var(--border)')}
+                  />
+                </div>
+              ))}
               <div>
-                <label className="block text-sm font-medium text-[#94a3b8] mb-1.5">Title</label>
-                <input
-                  value={form.title}
-                  onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
-                  placeholder="Schedule Manager"
-                  className="w-full px-3 py-2.5 bg-[#0f172a] border border-[#334155] rounded-xl text-sm text-[#f1f5f9] placeholder-[#475569] focus:border-[#6366f1] outline-none transition-colors"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-[#94a3b8] mb-1.5">URL</label>
-                <input
-                  value={form.url}
-                  onChange={e => setForm(f => ({ ...f, url: e.target.value }))}
-                  placeholder="/manager/schedule or https://..."
-                  className="w-full px-3 py-2.5 bg-[#0f172a] border border-[#334155] rounded-xl text-sm text-[#f1f5f9] placeholder-[#475569] focus:border-[#6366f1] outline-none transition-colors"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-[#94a3b8] mb-1.5">Icon (emoji)</label>
-                <input
-                  value={form.icon}
-                  onChange={e => setForm(f => ({ ...f, icon: e.target.value }))}
-                  placeholder="📅"
-                  className="w-full px-3 py-2.5 bg-[#0f172a] border border-[#334155] rounded-xl text-sm text-[#f1f5f9] placeholder-[#475569] focus:border-[#6366f1] outline-none transition-colors"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-[#94a3b8] mb-2">Color</label>
-                <div className="flex flex-wrap gap-2">
+                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Color</label>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                   {COLORS.map(c => (
                     <button
                       key={c}
                       onClick={() => setForm(f => ({ ...f, color: c }))}
-                      className="w-8 h-8 rounded-full transition-transform hover:scale-110 flex items-center justify-center border-2"
-                      style={{ backgroundColor: c, borderColor: form.color === c ? 'white' : 'transparent' }}
+                      style={{
+                        width: '32px', height: '32px', borderRadius: '50%',
+                        backgroundColor: c, border: form.color === c ? '2px solid var(--text)' : '2px solid transparent',
+                        cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        transition: 'transform 0.1s',
+                      }}
+                      onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.1)')}
+                      onMouseLeave={e => (e.currentTarget.style.transform = 'scale(1)')}
                     >
-                      {form.color === c && <Check size={13} className="text-white" />}
+                      {form.color === c && <Check size={13} color="white" />}
                     </button>
                   ))}
                 </div>
               </div>
             </div>
-            <div className="flex gap-3 mt-6">
+            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.5rem' }}>
               <button
                 onClick={() => setShowAddModal(false)}
-                className="flex-1 px-4 py-2.5 border border-[#334155] rounded-xl text-sm text-[#94a3b8] hover:bg-[#334155] hover:text-[#f1f5f9] transition-colors"
+                style={{
+                  flex: 1, padding: '0.625rem 1rem',
+                  border: '1px solid var(--border)', borderRadius: '8px',
+                  fontSize: '0.875rem', color: 'var(--text-muted)', background: 'var(--surface)', cursor: 'pointer',
+                }}
+                onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface-alt)')}
+                onMouseLeave={e => (e.currentTarget.style.background = 'var(--surface)')}
               >
                 Cancel
               </button>
               <button
                 onClick={handleSaveBookmark}
-                className="flex-1 px-4 py-2.5 bg-[#6366f1] hover:bg-[#4f46e5] text-white rounded-xl text-sm font-medium transition-colors shadow-lg shadow-indigo-900/30"
+                style={{
+                  flex: 1, padding: '0.625rem 1rem',
+                  background: 'var(--primary)', color: '#FFFFFF',
+                  border: 'none', borderRadius: '8px',
+                  fontSize: '0.875rem', fontWeight: 600, cursor: 'pointer',
+                }}
+                onMouseEnter={e => (e.currentTarget.style.background = 'var(--primary-hover)')}
+                onMouseLeave={e => (e.currentTarget.style.background = 'var(--primary)')}
               >
                 {editBookmark ? 'Save Changes' : 'Add Tile'}
               </button>

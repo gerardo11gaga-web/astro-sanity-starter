@@ -4,6 +4,24 @@ import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Eye, EyeOff } from 'lucide-react';
 
+const CathedralLogo = () => (
+  <svg width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="28" cy="28" r="27" stroke="#C9A84C" strokeWidth="1.5"/>
+    <g stroke="#9B2335" strokeWidth="1.2" fill="none">
+      <rect x="18" y="30" width="20" height="16"/>
+      <path d="M18 30 L28 20 L38 30"/>
+      <rect x="24" y="36" width="8" height="10"/>
+      <rect x="26" y="22" width="4" height="6"/>
+      <line x1="28" y1="16" x2="28" y2="20"/>
+      <line x1="26" y1="18" x2="30" y2="18"/>
+      <rect x="14" y="34" width="6" height="12"/>
+      <path d="M14 34 L17 28 L20 34"/>
+      <rect x="36" y="34" width="6" height="12"/>
+      <path d="M36 34 L39 28 L42 34"/>
+    </g>
+  </svg>
+);
+
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -26,63 +44,120 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%)' }}>
-      {/* Background glow */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl" />
-      </div>
-
-      <div className="relative w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'var(--bg)' }}>
+      <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="relative inline-flex">
-            <div className="w-16 h-16 bg-[#6366f1] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-2xl shadow-indigo-900/50 text-3xl">
-              🏪
-            </div>
+          <div className="inline-flex items-center justify-center mb-4">
+            <CathedralLogo />
           </div>
-          <h1 className="text-2xl font-bold text-[#f1f5f9]">CLL Carniceria</h1>
-          <p className="text-[#94a3b8] text-sm mt-1">Sign in to CLL Scheduler</p>
+          <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.75rem', fontWeight: 700, color: 'var(--text)', lineHeight: 1.2 }}>
+            Carniceria La Lupita
+          </h1>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginTop: '0.375rem' }}>
+            Scheduler — From Our Family to Yours
+          </p>
         </div>
 
         {/* Card */}
-        <div className="bg-[#1e293b] rounded-2xl border border-[#334155] p-8 shadow-2xl shadow-black/40 backdrop-blur-sm">
-          <h2 className="text-lg font-semibold text-[#f1f5f9] mb-1">Welcome back</h2>
-          <p className="text-[#94a3b8] text-sm mb-6">Sign in to CLL Scheduler</p>
+        <div style={{
+          background: 'var(--surface)',
+          borderRadius: '16px',
+          border: '1px solid var(--border)',
+          padding: '2rem',
+          boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
+        }}>
+          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.25rem', fontWeight: 600, color: 'var(--text)', marginBottom: '0.25rem' }}>
+            Welcome back
+          </h2>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginBottom: '1.5rem' }}>
+            Sign in to your account
+          </p>
 
           {error && (
-            <div className="mb-5 p-3 bg-red-500/10 border border-red-500/30 rounded-xl text-sm text-red-400 flex items-center gap-2">
-              <span className="text-red-500">!</span>
-              {error}
+            <div style={{
+              marginBottom: '1.25rem',
+              padding: '0.75rem 1rem',
+              background: '#FEE2E2',
+              border: '1px solid #FECACA',
+              borderRadius: '8px',
+              fontSize: '0.875rem',
+              color: '#991B1B',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+            }}>
+              <span style={{ fontWeight: 700 }}>!</span> {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <div>
-              <label className="block text-sm font-medium text-[#94a3b8] mb-1.5">Email address</label>
+              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-muted)', marginBottom: '0.375rem' }}>
+                Email address
+              </label>
               <input
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 required
                 placeholder="admin@store.com"
-                className="w-full px-4 py-2.5 bg-[#0f172a] border border-[#334155] rounded-xl text-sm text-[#f1f5f9] placeholder-[#475569] focus:border-[#6366f1] focus:ring-2 focus:ring-[#6366f1]/20 outline-none transition-all"
+                style={{
+                  width: '100%',
+                  padding: '0.625rem 0.875rem',
+                  background: 'var(--surface)',
+                  border: '1px solid var(--border)',
+                  borderRadius: '8px',
+                  fontSize: '0.875rem',
+                  color: 'var(--text)',
+                  outline: 'none',
+                  transition: 'border-color 0.15s',
+                }}
+                onFocus={e => (e.currentTarget.style.borderColor = 'var(--primary)')}
+                onBlur={e => (e.currentTarget.style.borderColor = 'var(--border)')}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-[#94a3b8] mb-1.5">Password</label>
-              <div className="relative">
+              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-muted)', marginBottom: '0.375rem' }}>
+                Password
+              </label>
+              <div style={{ position: 'relative' }}>
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   required
                   placeholder="••••••••"
-                  className="w-full px-4 py-2.5 bg-[#0f172a] border border-[#334155] rounded-xl text-sm text-[#f1f5f9] placeholder-[#475569] focus:border-[#6366f1] focus:ring-2 focus:ring-[#6366f1]/20 outline-none transition-all pr-10"
+                  style={{
+                    width: '100%',
+                    padding: '0.625rem 2.5rem 0.625rem 0.875rem',
+                    background: 'var(--surface)',
+                    border: '1px solid var(--border)',
+                    borderRadius: '8px',
+                    fontSize: '0.875rem',
+                    color: 'var(--text)',
+                    outline: 'none',
+                    transition: 'border-color 0.15s',
+                  }}
+                  onFocus={e => (e.currentTarget.style.borderColor = 'var(--primary)')}
+                  onBlur={e => (e.currentTarget.style.borderColor = 'var(--border)')}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#475569] hover:text-[#94a3b8] transition-colors"
+                  style={{
+                    position: 'absolute',
+                    right: '0.75rem',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    color: 'var(--text-light)',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
                 >
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
@@ -91,7 +166,25 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#6366f1] hover:bg-[#4f46e5] text-white py-2.5 rounded-xl font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-indigo-900/30 mt-2"
+              style={{
+                width: '100%',
+                background: loading ? 'var(--text-light)' : 'var(--primary)',
+                color: '#FFFFFF',
+                padding: '0.625rem 1rem',
+                borderRadius: '8px',
+                fontWeight: 600,
+                fontSize: '0.875rem',
+                border: 'none',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                marginTop: '0.5rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem',
+                transition: 'background 0.15s',
+              }}
+              onMouseEnter={e => { if (!loading) e.currentTarget.style.background = 'var(--primary-hover)'; }}
+              onMouseLeave={e => { if (!loading) e.currentTarget.style.background = 'var(--primary)'; }}
             >
               {loading ? (
                 <>
@@ -105,8 +198,10 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div className="mt-6 pt-5 border-t border-[#334155] text-center">
-            <p className="text-xs text-[#475569]">Demo: admin@store.com / admin123</p>
+          <div style={{ marginTop: '1.5rem', paddingTop: '1.25rem', borderTop: '1px solid var(--border)', textAlign: 'center' }}>
+            <p style={{ fontSize: '0.75rem', color: 'var(--text-light)' }}>
+              Demo credentials: admin@store.com / admin123
+            </p>
           </div>
         </div>
       </div>

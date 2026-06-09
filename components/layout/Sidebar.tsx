@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import {
   LayoutDashboard, Users, Calendar, DollarSign, Settings,
-  Store, ClipboardList, X, Menu, LogOut, ChevronLeft,
+  ClipboardList, X, Menu, LogOut, ChevronLeft,
 } from 'lucide-react';
 import { useState } from 'react';
 import { signOut, useSession } from 'next-auth/react';
@@ -18,6 +18,24 @@ const navItems = [
   { href: '/manager/settings', label: 'Settings', icon: Settings },
 ];
 
+const CathedralLogo = () => (
+  <svg width="36" height="36" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
+    <circle cx="28" cy="28" r="27" stroke="#C9A84C" strokeWidth="1.5"/>
+    <g stroke="#9B2335" strokeWidth="1.2" fill="none">
+      <rect x="18" y="30" width="20" height="16"/>
+      <path d="M18 30 L28 20 L38 30"/>
+      <rect x="24" y="36" width="8" height="10"/>
+      <rect x="26" y="22" width="4" height="6"/>
+      <line x1="28" y1="16" x2="28" y2="20"/>
+      <line x1="26" y1="18" x2="30" y2="18"/>
+      <rect x="14" y="34" width="6" height="12"/>
+      <path d="M14 34 L17 28 L20 34"/>
+      <rect x="36" y="34" width="6" height="12"/>
+      <path d="M36 34 L39 28 L42 34"/>
+    </g>
+  </svg>
+);
+
 function NavContent({ collapsed, onClose }: { collapsed?: boolean; onClose?: () => void }) {
   const pathname = usePathname();
   const { data: session } = useSession();
@@ -25,25 +43,30 @@ function NavContent({ collapsed, onClose }: { collapsed?: boolean; onClose?: () 
   return (
     <div className="flex flex-col h-full">
       {/* Logo */}
-      <div className="flex items-center gap-3 px-4 py-5 border-b border-[#334155]">
-        <div className="w-9 h-9 bg-[#6366f1] rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-indigo-900/40 text-lg">
-          🏪
-        </div>
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: '0.75rem',
+        padding: '1.25rem 1rem', borderBottom: '1px solid var(--border)',
+      }}>
+        <CathedralLogo />
         {!collapsed && (
-          <div className="flex-1 min-w-0">
-            <p className="font-bold text-[#f1f5f9] text-sm tracking-tight truncate">CLL Carniceria</p>
-            <p className="text-[10px] text-[#94a3b8] truncate">Workforce Management</p>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, color: 'var(--text)', fontSize: '0.9375rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              CLL Scheduler
+            </p>
+            <p style={{ fontSize: '0.6875rem', color: 'var(--text-light)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              Carniceria La Lupita
+            </p>
           </div>
         )}
         {onClose && (
-          <button onClick={onClose} className="ml-auto text-[#94a3b8] hover:text-[#f1f5f9] p-1">
+          <button onClick={onClose} style={{ marginLeft: 'auto', color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', display: 'flex' }}>
             <X size={18} />
           </button>
         )}
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
+      <nav style={{ flex: 1, padding: '1rem 0.75rem', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
         {navItems.map(({ href, label, icon: Icon }) => {
           const active = pathname === href || (href !== '/manager' && pathname.startsWith(href));
           return (
@@ -51,27 +74,38 @@ function NavContent({ collapsed, onClose }: { collapsed?: boolean; onClose?: () 
               key={href}
               href={href}
               onClick={onClose}
-              className={cn(
-                'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150',
-                active
-                  ? 'bg-[#6366f1] text-white shadow-lg shadow-indigo-900/30'
-                  : 'text-[#94a3b8] hover:bg-[#334155] hover:text-[#f1f5f9]'
-              )}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '0.75rem',
+                padding: '0.625rem 0.75rem', borderRadius: '8px',
+                fontSize: '0.875rem', fontWeight: 500, textDecoration: 'none',
+                transition: 'all 0.15s',
+                background: active ? 'var(--primary-light)' : 'transparent',
+                color: active ? 'var(--primary)' : 'var(--text-muted)',
+              }}
+              onMouseEnter={e => { if (!active) e.currentTarget.style.background = 'var(--surface-alt)'; }}
+              onMouseLeave={e => { if (!active) e.currentTarget.style.background = 'transparent'; }}
             >
-              <Icon size={17} className="flex-shrink-0" />
+              <Icon size={17} style={{ flexShrink: 0 }} />
               {!collapsed && <span>{label}</span>}
             </Link>
           );
         })}
 
         {!collapsed && (
-          <div className="pt-2 mt-2 border-t border-[#334155]">
+          <div style={{ paddingTop: '0.5rem', marginTop: '0.5rem', borderTop: '1px solid var(--border)' }}>
             <Link
               href="/"
               onClick={onClose}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-[#94a3b8] hover:bg-[#334155] hover:text-[#f1f5f9] transition-all duration-150"
+              style={{
+                display: 'flex', alignItems: 'center', gap: '0.75rem',
+                padding: '0.625rem 0.75rem', borderRadius: '8px',
+                fontSize: '0.875rem', fontWeight: 500, textDecoration: 'none',
+                color: 'var(--text-muted)', transition: 'all 0.15s',
+              }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface-alt)')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
             >
-              <LayoutDashboard size={17} className="flex-shrink-0" />
+              <LayoutDashboard size={17} style={{ flexShrink: 0 }} />
               <span>HQ Dashboard</span>
             </Link>
           </div>
@@ -80,19 +114,33 @@ function NavContent({ collapsed, onClose }: { collapsed?: boolean; onClose?: () 
 
       {/* User / Sign out */}
       {!collapsed && (
-        <div className="p-3 border-t border-[#334155]">
-          <div className="flex items-center gap-3 px-3 py-2 rounded-xl bg-[#334155]/50">
-            <div className="w-8 h-8 rounded-full bg-[#6366f1] flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+        <div style={{ padding: '0.75rem', borderTop: '1px solid var(--border)' }}>
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: '0.75rem',
+            padding: '0.625rem 0.75rem', borderRadius: '8px',
+            background: 'var(--surface-alt)',
+          }}>
+            <div style={{
+              width: '32px', height: '32px', borderRadius: '50%',
+              background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: 'white', fontSize: '0.75rem', fontWeight: 700, flexShrink: 0,
+            }}>
               {session?.user?.email?.[0]?.toUpperCase() || 'A'}
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-medium text-[#f1f5f9] truncate">{session?.user?.email || 'admin@store.com'}</p>
-              <p className="text-[10px] text-[#94a3b8] capitalize">{(session?.user as any)?.role || 'admin'}</p>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{ fontSize: '0.75rem', fontWeight: 500, color: 'var(--text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {session?.user?.email || 'admin@store.com'}
+              </p>
+              <p style={{ fontSize: '0.6875rem', color: 'var(--text-muted)', textTransform: 'capitalize' }}>
+                {(session?.user as any)?.role || 'admin'}
+              </p>
             </div>
             <button
               onClick={() => signOut({ callbackUrl: '/login' })}
-              className="text-[#94a3b8] hover:text-[#ef4444] transition-colors p-1 flex-shrink-0"
+              style={{ color: 'var(--text-light)', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', flexShrink: 0, padding: '0.25rem' }}
               title="Sign out"
+              onMouseEnter={e => (e.currentTarget.style.color = 'var(--danger)')}
+              onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-light)')}
             >
               <LogOut size={15} />
             </button>
@@ -110,15 +158,30 @@ export function Sidebar() {
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className={cn(
-        'hidden md:flex flex-col bg-[#1e293b] border-r border-[#334155] transition-all duration-300 min-h-screen relative',
-        collapsed ? 'w-16' : 'w-[260px]'
-      )}>
+      <aside style={{
+        background: 'var(--surface)',
+        borderRight: '1px solid var(--border)',
+        minHeight: '100vh',
+        position: 'relative',
+        transition: 'width 0.3s',
+        width: collapsed ? '4rem' : '260px',
+        flexShrink: 0,
+        display: 'none',
+      }} className="md:flex flex-col">
         <NavContent collapsed={collapsed} />
         {/* Collapse toggle */}
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="absolute -right-3 top-20 w-6 h-6 bg-[#334155] border border-[#475569] rounded-full flex items-center justify-center text-[#94a3b8] hover:text-[#f1f5f9] hover:bg-[#6366f1] transition-all z-10"
+          style={{
+            position: 'absolute', right: '-12px', top: '5rem',
+            width: '24px', height: '24px',
+            background: 'var(--surface)', border: '1px solid var(--border)',
+            borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: 'var(--text-muted)', cursor: 'pointer', zIndex: 10,
+            boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.background = 'var(--primary)'; e.currentTarget.style.color = 'white'; e.currentTarget.style.borderColor = 'var(--primary)'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'var(--surface)'; e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.borderColor = 'var(--border)'; }}
         >
           <ChevronLeft size={12} className={cn('transition-transform', collapsed && 'rotate-180')} />
         </button>
@@ -126,7 +189,15 @@ export function Sidebar() {
 
       {/* Mobile hamburger */}
       <button
-        className="md:hidden fixed top-4 left-4 z-50 w-10 h-10 bg-[#1e293b] border border-[#334155] rounded-xl flex items-center justify-center text-[#94a3b8] hover:text-[#f1f5f9] shadow-lg"
+        style={{
+          position: 'fixed', top: '1rem', left: '1rem', zIndex: 50,
+          width: '40px', height: '40px',
+          background: 'var(--surface)', border: '1px solid var(--border)',
+          borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          color: 'var(--text-muted)', cursor: 'pointer',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+        }}
+        className="md:hidden"
         onClick={() => setMobileOpen(true)}
       >
         <Menu size={18} />
@@ -134,12 +205,15 @@ export function Sidebar() {
 
       {/* Mobile drawer overlay */}
       {mobileOpen && (
-        <div className="md:hidden fixed inset-0 z-50 flex">
+        <div className="md:hidden" style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex' }}>
           <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }}
             onClick={() => setMobileOpen(false)}
           />
-          <aside className="relative z-10 w-[280px] bg-[#1e293b] border-r border-[#334155] h-full">
+          <aside style={{
+            position: 'relative', zIndex: 10, width: '280px',
+            background: 'var(--surface)', borderRight: '1px solid var(--border)', height: '100%',
+          }}>
             <NavContent onClose={() => setMobileOpen(false)} />
           </aside>
         </div>
