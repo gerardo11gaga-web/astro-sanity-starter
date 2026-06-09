@@ -4,7 +4,7 @@ import { ManagerLayout } from '@/components/layout/ManagerLayout';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import Link from 'next/link';
-import { Users, Calendar, ClipboardList, DollarSign, AlertCircle, ArrowRight } from 'lucide-react';
+import { Users, Calendar, ClipboardList, DollarSign, ArrowRight } from 'lucide-react';
 
 export default function ManagerDashboard() {
   const [stats, setStats] = useState({ employees: 0, pendingPTO: 0, scheduleStatus: 'none' });
@@ -52,34 +52,34 @@ export default function ManagerDashboard() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <Card>
             <CardBody className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                <Users size={22} className="text-blue-600" />
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: '#3b82f620' }}>
+                <Users size={22} style={{ color: '#3b82f6' }} />
               </div>
               <div>
-                <p className="text-sm text-gray-500">Active Employees</p>
-                <p className="text-2xl font-bold text-gray-900">{loading ? '—' : stats.employees}</p>
+                <p className="text-sm" style={{ color: 'var(--muted)' }}>Active Employees</p>
+                <p className="text-2xl font-bold" style={{ color: 'var(--text)' }}>{loading ? '—' : stats.employees}</p>
               </div>
             </CardBody>
           </Card>
           <Card>
             <CardBody className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center">
-                <ClipboardList size={22} className="text-yellow-600" />
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: '#f59e0b20' }}>
+                <ClipboardList size={22} style={{ color: '#f59e0b' }} />
               </div>
               <div>
-                <p className="text-sm text-gray-500">Pending PTO</p>
-                <p className="text-2xl font-bold text-gray-900">{loading ? '—' : stats.pendingPTO}</p>
-                {stats.pendingPTO > 0 && <p className="text-xs text-yellow-600">Needs review</p>}
+                <p className="text-sm" style={{ color: 'var(--muted)' }}>Pending PTO</p>
+                <p className="text-2xl font-bold" style={{ color: 'var(--text)' }}>{loading ? '—' : stats.pendingPTO}</p>
+                {stats.pendingPTO > 0 && <p className="text-xs" style={{ color: '#f59e0b' }}>Needs review</p>}
               </div>
             </CardBody>
           </Card>
           <Card>
             <CardBody className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center">
-                <Calendar size={22} className="text-indigo-600" />
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: '#6366f120' }}>
+                <Calendar size={22} style={{ color: '#6366f1' }} />
               </div>
               <div>
-                <p className="text-sm text-gray-500">Schedule Status</p>
+                <p className="text-sm" style={{ color: 'var(--muted)' }}>Schedule Status</p>
                 <div className="mt-1">{statusBadge(stats.scheduleStatus)}</div>
               </div>
             </CardBody>
@@ -89,22 +89,22 @@ export default function ManagerDashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Recent PTO */}
           <Card>
-            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-              <h3 className="font-semibold text-gray-900">Pending PTO Requests</h3>
-              <Link href="/manager/pto-queue" className="text-sm text-indigo-600 hover:underline flex items-center gap-1">
+            <div className="px-6 py-4 border-b flex items-center justify-between" style={{ borderColor: 'var(--border)' }}>
+              <h3 className="font-semibold" style={{ color: 'var(--text)' }}>Pending PTO Requests</h3>
+              <Link href="/manager/pto-queue" className="text-sm flex items-center gap-1 hover:underline" style={{ color: '#6366f1' }}>
                 View all <ArrowRight size={14} />
               </Link>
             </div>
             <CardBody>
               {recentPTO.length === 0 ? (
-                <p className="text-gray-500 text-sm text-center py-4">No pending requests</p>
+                <p className="text-sm text-center py-4" style={{ color: 'var(--muted)' }}>No pending requests</p>
               ) : (
                 <div className="space-y-3">
                   {recentPTO.map((pto: any) => (
                     <div key={pto.id} className="flex items-center justify-between">
                       <div>
-                        <p className="font-medium text-sm text-gray-900">{pto.first_name} {pto.last_name}</p>
-                        <p className="text-xs text-gray-500">{pto.start_date} — {pto.end_date}</p>
+                        <p className="font-medium text-sm" style={{ color: 'var(--text)' }}>{pto.first_name} {pto.last_name}</p>
+                        <p className="text-xs" style={{ color: 'var(--muted)' }}>{pto.start_date} — {pto.end_date}</p>
                       </div>
                       {ptoTypeBadge(pto.request_type)}
                     </div>
@@ -116,25 +116,28 @@ export default function ManagerDashboard() {
 
           {/* Quick Actions */}
           <Card>
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h3 className="font-semibold text-gray-900">Quick Actions</h3>
+            <div className="px-6 py-4 border-b" style={{ borderColor: 'var(--border)' }}>
+              <h3 className="font-semibold" style={{ color: 'var(--text)' }}>Quick Actions</h3>
             </div>
-            <CardBody className="space-y-3">
+            <CardBody className="space-y-2">
               {[
-                { href: '/manager/schedule', icon: Calendar, label: 'Manage Schedule', desc: 'Generate or view weekly schedule', color: 'indigo' },
-                { href: '/manager/pto-queue', icon: ClipboardList, label: 'Review PTO', desc: 'Approve or deny time-off requests', color: 'yellow' },
-                { href: '/manager/employees', icon: Users, label: 'Add Employee', desc: 'Manage your team members', color: 'green' },
-                { href: '/manager/payroll', icon: DollarSign, label: 'Run Payroll', desc: 'Generate payroll reports', color: 'pink' },
-              ].map(({ href, icon: Icon, label, desc, color }) => (
-                <Link key={href} href={href} className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors group">
-                  <div className={`w-10 h-10 bg-${color}-100 rounded-lg flex items-center justify-center flex-shrink-0`}>
-                    <Icon size={18} className={`text-${color}-600`} />
+                { href: '/manager/schedule', icon: Calendar, label: 'Manage Schedule', desc: 'Generate or view weekly schedule', accent: '#6366f1' },
+                { href: '/manager/pto-queue', icon: ClipboardList, label: 'Review PTO', desc: 'Approve or deny time-off requests', accent: '#f59e0b' },
+                { href: '/manager/employees', icon: Users, label: 'Manage Employees', desc: 'Manage your team members', accent: '#10b981' },
+                { href: '/manager/payroll', icon: DollarSign, label: 'Run Payroll', desc: 'Generate payroll reports', accent: '#ec4899' },
+              ].map(({ href, icon: Icon, label, desc, accent }) => (
+                <Link key={href} href={href} className="flex items-center gap-3 p-3 rounded-xl transition-colors group" style={{ background: 'transparent' }}
+                  onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface2)')}
+                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                >
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: accent + '20' }}>
+                    <Icon size={18} style={{ color: accent }} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm text-gray-900">{label}</p>
-                    <p className="text-xs text-gray-500">{desc}</p>
+                    <p className="font-medium text-sm" style={{ color: 'var(--text)' }}>{label}</p>
+                    <p className="text-xs" style={{ color: 'var(--muted)' }}>{desc}</p>
                   </div>
-                  <ArrowRight size={16} className="text-gray-300 group-hover:text-gray-500 transition-colors" />
+                  <ArrowRight size={16} style={{ color: 'var(--muted)' }} />
                 </Link>
               ))}
             </CardBody>
