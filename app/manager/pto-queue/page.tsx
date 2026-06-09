@@ -44,7 +44,7 @@ export default function PTOQueuePage() {
   };
 
   const statusBadge = (s: string) => {
-    const v: Record<string, any> = { pending: 'warning', approved: 'success', denied: 'danger' };
+    const v: Record<string, any> = { pending: 'pending', approved: 'approved', denied: 'denied' };
     return <Badge variant={v[s] || 'default'}>{s}</Badge>;
   };
 
@@ -56,7 +56,15 @@ export default function PTOQueuePage() {
             <button
               key={s}
               onClick={() => setFilter(s)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors capitalize ${filter === s ? 'bg-indigo-600 text-white' : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'}`}
+              style={{
+                padding: '0.5rem 1rem', borderRadius: '8px', fontSize: '0.875rem', fontWeight: 500,
+                textTransform: 'capitalize', cursor: 'pointer', border: 'none', transition: 'all 0.15s',
+                background: filter === s ? 'var(--primary)' : 'var(--surface)',
+                color: filter === s ? 'white' : 'var(--text-muted)',
+                boxShadow: filter === s ? 'none' : '0 0 0 1px var(--border)',
+              }}
+              onMouseEnter={e => { if (filter !== s) e.currentTarget.style.background = 'var(--surface-alt)'; }}
+              onMouseLeave={e => { if (filter !== s) e.currentTarget.style.background = 'var(--surface)'; }}
             >
               {s}
             </button>
@@ -76,12 +84,17 @@ export default function PTOQueuePage() {
             </tr>
           </Thead>
           <Tbody>
-            {requests.map(r => (
-              <tr key={r.id} className="hover:bg-gray-50">
+            {requests.map((r, i) => (
+              <tr key={r.id}
+                style={{ background: i % 2 === 1 ? 'var(--surface-alt)' : 'var(--surface)' }}
+                onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface-alt)')}
+                onMouseLeave={e => (e.currentTarget.style.background = i % 2 === 1 ? 'var(--surface-alt)' : 'var(--surface)')}>
                 <Td><span className="font-medium">{r.first_name} {r.last_name}</span></Td>
                 <Td>{typeBadge(r.request_type)}</Td>
                 <Td>{r.start_date} — {r.end_date}</Td>
-                <Td className="max-w-[200px]"><span className="text-gray-600 truncate block">{r.reason || '—'}</span></Td>
+                <Td className="max-w-[200px]">
+                  <span style={{ color: 'var(--text-muted)' }} className="truncate block">{r.reason || '—'}</span>
+                </Td>
                 <Td>{new Date(r.submission_date).toLocaleDateString()}</Td>
                 <Td>{statusBadge(r.status)}</Td>
                 {filter === 'pending' && (
@@ -89,14 +102,14 @@ export default function PTOQueuePage() {
                     <div className="flex gap-2">
                       <button
                         onClick={() => { setSelected(r); setAction('approved'); }}
-                        className="text-green-600 hover:text-green-800 transition-colors"
+                        style={{ color: 'var(--success)', background: 'none', border: 'none', cursor: 'pointer' }}
                         title="Approve"
                       >
                         <CheckCircle size={18} />
                       </button>
                       <button
                         onClick={() => { setSelected(r); setAction('denied'); }}
-                        className="text-red-500 hover:text-red-700 transition-colors"
+                        style={{ color: 'var(--danger)', background: 'none', border: 'none', cursor: 'pointer' }}
                         title="Deny"
                       >
                         <XCircle size={18} />
@@ -107,7 +120,11 @@ export default function PTOQueuePage() {
               </tr>
             ))}
             {requests.length === 0 && (
-              <tr><Td colSpan={filter === 'pending' ? 7 : 6} className="text-center text-gray-400 py-8">No requests found</Td></tr>
+              <tr>
+                <Td colSpan={filter === 'pending' ? 7 : 6} className="text-center py-8" style={{ color: 'var(--text-light)' }}>
+                  No requests found
+                </Td>
+              </tr>
             )}
           </Tbody>
         </Table>
@@ -120,10 +137,10 @@ export default function PTOQueuePage() {
       >
         {selected && (
           <div className="space-y-4">
-            <div className="p-4 bg-gray-50 rounded-lg">
-              <p className="font-medium text-gray-900">{selected.first_name} {selected.last_name}</p>
-              <p className="text-sm text-gray-600 capitalize">{selected.request_type.replace('_', ' ')}: {selected.start_date} — {selected.end_date}</p>
-              {selected.reason && <p className="text-sm text-gray-500 mt-1">Reason: {selected.reason}</p>}
+            <div style={{ padding: '1rem', background: 'var(--surface-alt)', borderRadius: '8px', border: '1px solid var(--border)' }}>
+              <p className="font-medium" style={{ color: 'var(--text)' }}>{selected.first_name} {selected.last_name}</p>
+              <p className="text-sm capitalize" style={{ color: 'var(--text-muted)' }}>{selected.request_type.replace('_', ' ')}: {selected.start_date} — {selected.end_date}</p>
+              {selected.reason && <p className="text-sm mt-1" style={{ color: 'var(--text-light)' }}>Reason: {selected.reason}</p>}
             </div>
             <Textarea
               label="Manager Notes (optional)"

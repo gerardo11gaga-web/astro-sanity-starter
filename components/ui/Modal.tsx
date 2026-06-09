@@ -25,12 +25,32 @@ export function Modal({ open, onClose, title, children, className }: ModalProps)
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-      <div className={cn('relative rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto', className)} style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+      <div
+        className={cn('relative rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto', className)}
+        style={{
+          background: 'var(--surface)',
+          border: '1px solid var(--border)',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+        }}
+      >
         {title && (
-          <div className="flex items-center justify-between p-6 border-b" style={{ borderColor: 'var(--border)' }}>
-            <h2 className="text-lg font-semibold" style={{ color: 'var(--text)' }}>{title}</h2>
-            <button onClick={onClose} className="transition-colors" style={{ color: 'var(--muted)' }} onMouseEnter={e => (e.currentTarget.style.color = 'var(--text)')} onMouseLeave={e => (e.currentTarget.style.color = 'var(--muted)')}>
+          <div
+            className="flex items-center justify-between p-6 border-b"
+            style={{ borderColor: 'var(--border)' }}
+          >
+            <h2
+              className="text-lg font-semibold"
+              style={{ fontFamily: "'Playfair Display', serif", color: 'var(--text)' }}
+            >
+              {title}
+            </h2>
+            <button
+              onClick={onClose}
+              style={{ color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', padding: '0.25rem', borderRadius: '6px' }}
+              onMouseEnter={e => (e.currentTarget.style.color = 'var(--text)')}
+              onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}
+            >
               <X size={20} />
             </button>
           </div>

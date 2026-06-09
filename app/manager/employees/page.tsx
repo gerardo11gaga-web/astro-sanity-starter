@@ -69,12 +69,18 @@ export default function EmployeesPage() {
       <div className="max-w-6xl space-y-4">
         <div className="flex items-center justify-between gap-4">
           <div className="relative flex-1 max-w-sm">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-light)' }} />
             <input
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Search employees..."
-              className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:border-indigo-500 outline-none"
+              style={{
+                width: '100%', paddingLeft: '2.25rem', paddingRight: '1rem', paddingTop: '0.5rem', paddingBottom: '0.5rem',
+                border: '1px solid var(--border)', borderRadius: '8px', fontSize: '0.875rem',
+                background: 'var(--surface)', color: 'var(--text)', outline: 'none',
+              }}
+              onFocus={e => (e.currentTarget.style.borderColor = 'var(--primary)')}
+              onBlur={e => (e.currentTarget.style.borderColor = 'var(--border)')}
             />
           </div>
           <Button onClick={() => setShowAdd(true)}>
@@ -94,21 +100,24 @@ export default function EmployeesPage() {
             </tr>
           </Thead>
           <Tbody>
-            {filtered.map(emp => (
-              <tr key={emp.id} className="hover:bg-gray-50">
+            {filtered.map((emp, i) => (
+              <tr key={emp.id} style={{ background: i % 2 === 1 ? 'var(--surface-alt)' : 'var(--surface)' }}
+                onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface-alt)')}
+                onMouseLeave={e => (e.currentTarget.style.background = i % 2 === 1 ? 'var(--surface-alt)' : 'var(--surface)')}>
                 <Td>
-                  <Link href={`/manager/employees/${emp.id}`} className="font-medium text-indigo-600 hover:underline">
+                  <Link href={`/manager/employees/${emp.id}`} style={{ fontWeight: 500, color: 'var(--primary)' }}
+                    className="hover:underline">
                     {emp.first_name} {emp.last_name}
                   </Link>
-                  {emp.email && <p className="text-xs text-gray-500">{emp.email}</p>}
+                  {emp.email && <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{emp.email}</p>}
                 </Td>
                 <Td><Badge>{emp.employee_type}</Badge></Td>
                 <Td className="max-w-[200px]">
-                  <span className="text-gray-600 text-xs">{emp.department_names || '—'}</span>
+                  <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>{emp.department_names || '—'}</span>
                 </Td>
                 <Td>{emp.max_hours_per_week}h/wk</Td>
                 <Td>
-                  <Badge variant={emp.active ? 'success' : 'default'}>{emp.active ? 'Active' : 'Inactive'}</Badge>
+                  <Badge variant={emp.active ? 'approved' : 'default'}>{emp.active ? 'Active' : 'Inactive'}</Badge>
                 </Td>
                 <Td>
                   <div className="flex gap-2">
@@ -117,7 +126,13 @@ export default function EmployeesPage() {
                     </Link>
                     <button
                       onClick={() => toggleActive(emp)}
-                      className={`p-1.5 rounded-lg transition-colors ${emp.active ? 'text-red-500 hover:bg-red-50' : 'text-green-600 hover:bg-green-50'}`}
+                      style={{
+                        padding: '0.375rem', borderRadius: '6px',
+                        color: emp.active ? 'var(--danger)' : 'var(--success)',
+                        background: 'none', border: 'none', cursor: 'pointer',
+                      }}
+                      onMouseEnter={e => (e.currentTarget.style.background = emp.active ? '#FEE2E2' : '#DCFCE7')}
+                      onMouseLeave={e => (e.currentTarget.style.background = 'none')}
                       title={emp.active ? 'Deactivate' : 'Activate'}
                     >
                       {emp.active ? <UserX size={16} /> : <UserCheck size={16} />}
@@ -127,7 +142,7 @@ export default function EmployeesPage() {
               </tr>
             ))}
             {filtered.length === 0 && (
-              <tr><Td className="text-center text-gray-400 py-8" colSpan={6}>No employees found</Td></tr>
+              <tr><Td className="text-center py-8" style={{ color: 'var(--text-light)' }} colSpan={6}>No employees found</Td></tr>
             )}
           </Tbody>
         </Table>
