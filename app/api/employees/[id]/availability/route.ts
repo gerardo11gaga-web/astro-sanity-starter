@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { run } from '@/lib/db';
+import { run, ensureInit } from '@/lib/db';
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  await ensureInit();
   const { id } = await params;
   const rules = await req.json();
   await run('DELETE FROM availability_rules WHERE employee_id = ?', [id]);

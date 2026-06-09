@@ -1,32 +1,41 @@
-import { createClient, type InValue } from '@libsql/client';
+import { createClient, type InValue, type Client } from '@libsql/client';
 
-const client = createClient({
-  url: process.env.TURSO_DATABASE_URL || 'file:local.db',
-  authToken: process.env.TURSO_AUTH_TOKEN,
-});
+let _client: Client | null = null;
+let _initialized = false;
+
+function getClient(): Client {
+  if (!_client) {
+    const url = process.env.TURSO_DATABASE_URL;
+    if (!url) throw new Error('TURSO_DATABASE_URL env var is not set');
+    _client = createClient({ url, authToken: process.env.TURSO_AUTH_TOKEN });
+  }
+  return _client;
+}
 
 export type Row = Record<string, unknown>;
 
 export async function query(sql: string, args: InValue[] = []): Promise<Row[]> {
-  const result = await client.execute({ sql, args });
+  const result = await getClient().execute({ sql, args });
   return result.rows.map(row => {
     const obj: Row = {};
-    result.columns.forEach((col, i) => {
-      obj[col] = row[i];
-    });
+    result.columns.forEach((col, i) => { obj[col] = row[i]; });
     return obj;
   });
 }
 
-export async function run(sql: string, args: (string | number | null | bigint | ArrayBuffer | boolean)[] = []): Promise<{ lastInsertRowid: number | bigint; changes: number }> {
-  const result = await client.execute({ sql, args });
-  return {
-    lastInsertRowid: result.lastInsertRowid ?? 0,
-    changes: result.rowsAffected,
-  };
+export async function run(sql: string, args: InValue[] = []): Promise<{ lastInsertRowid: number | bigint; changes: number }> {
+  const result = await getClient().execute({ sql, args });
+  return { lastInsertRowid: result.lastInsertRowid ?? 0, changes: result.rowsAffected };
+}
+
+export async function ensureInit() {
+  if (_initialized) return;
+  await initDb();
+  _initialized = true;
 }
 
 export async function initDb() {
+  const client = getClient();
   // Create tables
   await client.execute(`CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query, run } from '@/lib/db';
+import { query, run, ensureInit } from '@/lib/db';
 
 export async function GET(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  await ensureInit();
   const { id } = await params;
   const empRows = await query('SELECT * FROM employees WHERE id = ?', [id]);
   const emp = empRows[0];
@@ -19,6 +20,7 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ id: st
 }
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  await ensureInit();
   const { id } = await params;
   const body = await req.json();
   await run(
@@ -29,6 +31,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 }
 
 export async function DELETE(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  await ensureInit();
   const { id } = await params;
   await run('UPDATE employees SET active = 0 WHERE id = ?', [id]);
   return NextResponse.json({ success: true });

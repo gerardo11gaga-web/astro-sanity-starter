@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query, run } from '@/lib/db';
+import { query, run, ensureInit } from '@/lib/db';
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  await ensureInit();
   const { id } = await params;
   const { status, manager_notes } = await req.json();
   await run('UPDATE pto_requests SET status = ?, manager_notes = ? WHERE id = ?', [status, manager_notes || null, id]);

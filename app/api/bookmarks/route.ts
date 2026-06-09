@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query, run } from '@/lib/db';
+import { query, run, ensureInit } from '@/lib/db';
 
 export async function GET() {
+  await ensureInit();
   const rows = await query('SELECT * FROM bookmarks ORDER BY sort_order, id');
   return NextResponse.json(rows);
 }
 
 export async function POST(req: NextRequest) {
+  await ensureInit();
   const body = await req.json();
   const result = await run(
     'INSERT INTO bookmarks (title, url, icon, color, sort_order) VALUES (?, ?, ?, ?, ?)',
@@ -16,6 +18,7 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
+  await ensureInit();
   const body = await req.json();
   await run(
     'UPDATE bookmarks SET title=?, url=?, icon=?, color=?, sort_order=? WHERE id=?',

@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query, run } from '@/lib/db';
+import { query, run, ensureInit } from '@/lib/db';
 
 export async function GET(req: NextRequest) {
+  await ensureInit();
   const { searchParams } = new URL(req.url);
   const status = searchParams.get('status');
   const employeeId = searchParams.get('employee_id');
@@ -15,6 +16,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  await ensureInit();
   const body = await req.json();
   const result = await run(
     `INSERT INTO pto_requests (employee_id, request_type, start_date, end_date, reason) VALUES (?, ?, ?, ?, ?)`,

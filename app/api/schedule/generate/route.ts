@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query, run } from '@/lib/db';
+import { query, run, ensureInit } from '@/lib/db';
 import { generateSchedule } from '@/lib/scheduler';
 
 export async function POST(req: NextRequest) {
+  await ensureInit();
   const { week_start, week_end } = await req.json();
 
   const pendingRows = await query(`

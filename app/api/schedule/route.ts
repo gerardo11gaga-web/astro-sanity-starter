@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@/lib/db';
+import { query, ensureInit } from '@/lib/db';
 
 export async function GET(req: NextRequest) {
+  await ensureInit();
   const { searchParams } = new URL(req.url);
   const weekStart = searchParams.get('week_start');
   if (weekStart) {

@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@/lib/db';
+import { query, ensureInit } from '@/lib/db';
 
 export async function POST(req: NextRequest) {
+  await ensureInit();
   const { start_date, end_date } = await req.json();
 
   const shifts = await query(`

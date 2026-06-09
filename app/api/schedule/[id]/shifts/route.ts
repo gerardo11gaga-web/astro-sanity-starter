@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { run } from '@/lib/db';
+import { run, ensureInit } from '@/lib/db';
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  await ensureInit();
   const { id } = await params;
   const body = await req.json();
   const result = await run(
@@ -13,6 +14,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 }
 
 export async function PUT(req: NextRequest) {
+  await ensureInit();
   const body = await req.json();
   await run(
     `UPDATE schedule_shifts SET employee_id=?, department_id=?, start_time=?, end_time=?, position=?, notes=? WHERE id=?`,
@@ -22,6 +24,7 @@ export async function PUT(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
+  await ensureInit();
   const { shift_id } = await req.json();
   await run('DELETE FROM schedule_shifts WHERE id = ?', [shift_id]);
   return NextResponse.json({ success: true });

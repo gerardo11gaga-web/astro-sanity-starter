@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query, run } from '@/lib/db';
+import { query, run, ensureInit } from '@/lib/db';
 
 export async function GET() {
+  await ensureInit();
   const employees = await query(`
     SELECT e.*, GROUP_CONCAT(d.name) as department_names
     FROM employees e
@@ -13,6 +14,7 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  await ensureInit();
   const body = await req.json();
   const result = await run(
     `INSERT INTO employees (first_name, last_name, phone, email, employee_type, max_hours_per_week, hire_date, notes)
