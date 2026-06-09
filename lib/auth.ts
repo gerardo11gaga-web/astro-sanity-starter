@@ -1,7 +1,6 @@
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
-import { getDb } from './db';
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
@@ -12,12 +11,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
-        const db = getDb();
-        const user = db.prepare('SELECT * FROM users WHERE email = ?').get(credentials.email) as any;
+        // Lazy-initialize db inside callback to avoid module-level issues
+        const { query, initDb } = await import('./db');
+        try {
+          await initDb();
+        } catch {
+          // Tables may already exist
+        }
+        const rows = await query('SELECT * FROM users WHERE email = ?', [credentials.email]);
+        const user = rows[0] as any;
         if (!user) return null;
-        const valid = await bcrypt.compare(credentials.password as string, user.password_hash);
+        const valid = await bcrypt.compare(credentials.password as string, user.password_hash as string);
         if (!valid) return null;
-        return { id: String(user.id), email: user.email, role: user.role, name: user.email };
+        return { id: String(user.id), email: user.email as string, role: user.role as string, name: user.email as string };
       },
     }),
   ],
@@ -32,5 +38,5 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
   },
   pages: { signIn: '/login' },
-  secret: process.env.AUTH_SECRET || 'store-scheduler-secret-key-change-in-production',
+  secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || 'store-scheduler-secret-key-change-in-production',
 });
