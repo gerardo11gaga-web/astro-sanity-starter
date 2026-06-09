@@ -153,7 +153,7 @@ export default function SchedulePage() {
     : [];
 
   const statusBadge = (s: string) => {
-    const map: Record<string, any> = { draft: 'warning', approved: 'info', published: 'success' };
+    const map: Record<string, any> = { draft: 'draft', approved: 'approved', published: 'published' };
     return <Badge variant={map[s] || 'default'}>{s}</Badge>;
   };
 
@@ -162,14 +162,24 @@ export default function SchedulePage() {
       <div className="space-y-4">
         {/* Controls */}
         <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-3 py-2">
-            <button onClick={() => setWeekStart(addDays(weekStart, -7))} className="text-gray-400 hover:text-gray-700">
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: '0.5rem',
+            background: 'var(--surface)', border: '1px solid var(--border)',
+            borderRadius: '8px', padding: '0.5rem 0.75rem',
+          }}>
+            <button
+              onClick={() => setWeekStart(addDays(weekStart, -7))}
+              style={{ color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', display: 'flex' }}
+            >
               <ChevronLeft size={16} />
             </button>
-            <span className="text-sm font-medium text-gray-900 min-w-[180px] text-center">
+            <span style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--text)', minWidth: '180px', textAlign: 'center' }}>
               {weekStart.toLocaleDateString([], { month: 'short', day: 'numeric' })} – {weekEnd.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}
             </span>
-            <button onClick={() => setWeekStart(addDays(weekStart, 7))} className="text-gray-400 hover:text-gray-700">
+            <button
+              onClick={() => setWeekStart(addDays(weekStart, 7))}
+              style={{ color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', display: 'flex' }}
+            >
               <ChevronRight size={16} />
             </button>
           </div>
@@ -197,64 +207,83 @@ export default function SchedulePage() {
 
         {/* Pending PTO Warning */}
         {pendingPTO > 0 && (
-          <div className="flex items-center gap-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-sm">
-            <AlertTriangle size={16} className="text-yellow-600 flex-shrink-0" />
-            <span className="text-yellow-800">{pendingPTO} pending PTO request(s) overlap this week. Review before generating.</span>
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: '0.75rem',
+            padding: '0.75rem', background: '#FEF3C7', border: '1px solid #FDE68A',
+            borderRadius: '8px', fontSize: '0.875rem',
+          }}>
+            <AlertTriangle size={16} style={{ color: '#B45309', flexShrink: 0 }} />
+            <span style={{ color: '#92400E' }}>{pendingPTO} pending PTO request(s) overlap this week. Review before generating.</span>
           </div>
         )}
 
         {/* Warnings */}
         {warnings.length > 0 && (
-          <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg">
-            <p className="font-medium text-orange-800 text-sm mb-1">Schedule Warnings</p>
-            <ul className="space-y-1">
-              {warnings.map((w, i) => <li key={i} className="text-xs text-orange-700">• {w}</li>)}
+          <div style={{ padding: '0.75rem', background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: '8px' }}>
+            <p style={{ fontWeight: 500, color: '#92400E', fontSize: '0.875rem', marginBottom: '0.25rem' }}>Schedule Warnings</p>
+            <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+              {warnings.map((w, i) => <li key={i} style={{ fontSize: '0.75rem', color: '#B45309' }}>• {w}</li>)}
             </ul>
           </div>
         )}
 
         {/* Schedule Table */}
         {schedule ? (
-          <div className="bg-white rounded-xl border border-gray-200 overflow-x-auto">
-            <table className="min-w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
+          <div style={{ background: 'var(--surface)', borderRadius: '12px', border: '1px solid var(--border)', overflowX: 'auto', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
+            <table style={{ minWidth: '100%', borderCollapse: 'collapse' }}>
+              <thead style={{ background: 'var(--bg)', borderBottom: '1px solid var(--border)' }}>
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase w-40">Employee</th>
+                  <th style={{ padding: '0.75rem 1rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', width: '160px' }}>Employee</th>
                   {weekDates.map((date, i) => (
-                    <th key={date} className="px-2 py-3 text-center text-xs font-semibold text-gray-500 uppercase min-w-[110px]">
+                    <th key={date} style={{ padding: '0.75rem 0.5rem', textAlign: 'center', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', minWidth: '110px' }}>
                       <div>{DAYS[i]}</div>
-                      <div className="text-gray-400 font-normal">{new Date(date + 'T12:00').getDate()}</div>
+                      <div style={{ color: 'var(--text-light)', fontWeight: 400 }}>{new Date(date + 'T12:00').getDate()}</div>
                     </th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
-                {uniqueEmployees.map((emp: any) => (
-                  <tr key={emp.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 text-sm font-medium text-gray-900">{emp.name}</td>
+              <tbody>
+                {uniqueEmployees.map((emp: any, i) => (
+                  <tr key={emp.id} style={{ borderTop: '1px solid var(--border)', background: i % 2 === 1 ? 'var(--surface-alt)' : 'var(--surface)' }}>
+                    <td style={{ padding: '0.75rem 1rem', fontSize: '0.875rem', fontWeight: 500, color: 'var(--text)' }}>{emp.name}</td>
                     {weekDates.map(date => {
                       const shifts = employeeShifts[emp.id]?.[date] || [];
                       return (
-                        <td key={date} className="px-2 py-2 align-top">
+                        <td key={date} style={{ padding: '0.5rem', verticalAlign: 'top' }}>
                           {shifts.map((shift: any) => (
-                            <div key={shift.id} className="mb-1 relative group">
+                            <div key={shift.id} style={{ marginBottom: '0.25rem', position: 'relative' }} className="group">
                               <div
-                                className="text-xs px-2 py-1 rounded-md text-white font-medium leading-tight"
-                                style={{ backgroundColor: shift.department_color || '#6366f1' }}
+                                style={{
+                                  fontSize: '0.75rem', padding: '0.25rem 0.5rem', borderRadius: '6px',
+                                  color: 'white', fontWeight: 500, lineHeight: 1.3,
+                                  backgroundColor: shift.department_color || 'var(--primary)',
+                                }}
                               >
                                 <div>{shift.start_time}–{shift.end_time}</div>
-                                <div className="opacity-80 text-[10px]">{shift.department_name}</div>
+                                <div style={{ opacity: 0.85, fontSize: '0.625rem' }}>{shift.department_name}</div>
                               </div>
-                              <div className="hidden group-hover:flex absolute -top-1 -right-1 gap-0.5 z-10">
+                              <div className="hidden group-hover:flex" style={{ position: 'absolute', top: '-4px', right: '-4px', gap: '2px', zIndex: 10 }}>
                                 <button
                                   onClick={() => { setEditShift(shift); setShiftForm({ employee_id: shift.employee_id, department_id: shift.department_id, start_time: shift.start_time, end_time: shift.end_time, position: shift.position || '' }); }}
-                                  className="w-5 h-5 bg-white border border-gray-200 rounded text-gray-600 hover:text-indigo-600 flex items-center justify-center shadow-sm"
+                                  style={{
+                                    width: '20px', height: '20px', background: 'var(--surface)', border: '1px solid var(--border)',
+                                    borderRadius: '4px', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                                  }}
+                                  onMouseEnter={e => (e.currentTarget.style.color = 'var(--primary)')}
+                                  onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}
                                 >
                                   <Pencil size={10} />
                                 </button>
                                 <button
                                   onClick={() => deleteShift(shift.id)}
-                                  className="w-5 h-5 bg-white border border-gray-200 rounded text-gray-600 hover:text-red-600 flex items-center justify-center shadow-sm"
+                                  style={{
+                                    width: '20px', height: '20px', background: 'var(--surface)', border: '1px solid var(--border)',
+                                    borderRadius: '4px', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                                  }}
+                                  onMouseEnter={e => (e.currentTarget.style.color = 'var(--danger)')}
+                                  onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}
                                 >
                                   <Trash2 size={10} />
                                 </button>
@@ -263,7 +292,9 @@ export default function SchedulePage() {
                           ))}
                           <button
                             onClick={() => { setAddShift({ date }); setShiftForm({ employee_id: emp.id, department_id: '', start_time: '09:00', end_time: '17:00', position: '' }); }}
-                            className="text-gray-300 hover:text-indigo-500 transition-colors"
+                            style={{ color: 'var(--text-light)', background: 'none', border: 'none', cursor: 'pointer', display: 'flex' }}
+                            onMouseEnter={e => (e.currentTarget.style.color = 'var(--primary)')}
+                            onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-light)')}
                           >
                             <Plus size={14} />
                           </button>
@@ -274,7 +305,7 @@ export default function SchedulePage() {
                 ))}
                 {uniqueEmployees.length === 0 && (
                   <tr>
-                    <td colSpan={8} className="text-center text-gray-400 py-12 text-sm">
+                    <td colSpan={8} style={{ textAlign: 'center', color: 'var(--text-light)', padding: '3rem 1rem', fontSize: '0.875rem' }}>
                       No schedule generated for this week. Click &quot;Generate Schedule&quot; to create one.
                     </td>
                   </tr>
@@ -283,10 +314,13 @@ export default function SchedulePage() {
             </table>
           </div>
         ) : (
-          <div className="bg-white rounded-xl border border-gray-200 flex items-center justify-center h-64 text-gray-400">
-            <div className="text-center">
-              <p className="text-lg font-medium mb-1">No schedule for this week</p>
-              <p className="text-sm">Click &quot;Generate Schedule&quot; to create one</p>
+          <div style={{
+            background: 'var(--surface)', borderRadius: '12px', border: '1px solid var(--border)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', height: '16rem',
+          }}>
+            <div style={{ textAlign: 'center', color: 'var(--text-muted)' }}>
+              <p style={{ fontSize: '1.125rem', fontWeight: 500, marginBottom: '0.25rem' }}>No schedule for this week</p>
+              <p style={{ fontSize: '0.875rem' }}>Click &quot;Generate Schedule&quot; to create one</p>
             </div>
           </div>
         )}

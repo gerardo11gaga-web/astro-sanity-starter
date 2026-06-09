@@ -17,10 +17,9 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  // New item forms
   const [newShift, setNewShift] = useState({ name: '', start_time: '', end_time: '', department_id: '' });
   const [newCoverage, setNewCoverage] = useState({ department_id: '', day_of_week: '1', shift_type: '', minimum_staff: '1' });
-  const [newDept, setNewDept] = useState({ name: '', color: '#6366f1' });
+  const [newDept, setNewDept] = useState({ name: '', color: '#9B2335' });
 
   useEffect(() => {
     fetchAll();
@@ -98,7 +97,7 @@ export default function SettingsPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newDept),
     });
-    setNewDept({ name: '', color: '#6366f1' });
+    setNewDept({ name: '', color: '#9B2335' });
     fetchAll();
   }
 
@@ -117,7 +116,7 @@ export default function SettingsPage() {
         {/* Store Rules */}
         <Card>
           <CardHeader className="flex items-center justify-between">
-            <h3 className="font-semibold text-gray-900">Store Rules</h3>
+            <h3 className="font-semibold" style={{ color: 'var(--text)' }}>Store Rules</h3>
             <Button size="sm" onClick={saveRules} loading={saving}>
               <Save size={14} /> {saved ? 'Saved!' : 'Save Rules'}
             </Button>
@@ -126,14 +125,23 @@ export default function SettingsPage() {
             {storeRules.map((rule, idx) => (
               <div key={rule.id} className="flex items-center justify-between gap-4">
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">{rule.rule_key.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase())}</p>
-                  <p className="text-xs text-gray-500">{rule.description}</p>
+                  <p className="text-sm font-medium" style={{ color: 'var(--text)' }}>
+                    {rule.rule_key.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase())}
+                  </p>
+                  <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{rule.description}</p>
                 </div>
                 <input
                   type="number"
                   value={rule.rule_value}
                   onChange={e => setStoreRules(prev => prev.map((r, i) => i === idx ? { ...r, rule_value: e.target.value } : r))}
-                  className="w-24 px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-right outline-none focus:border-indigo-500"
+                  style={{
+                    width: '96px', padding: '0.375rem 0.75rem',
+                    border: '1px solid var(--border)', borderRadius: '8px',
+                    fontSize: '0.875rem', textAlign: 'right', outline: 'none',
+                    background: 'var(--surface)', color: 'var(--text)',
+                  }}
+                  onFocus={e => (e.currentTarget.style.borderColor = 'var(--primary)')}
+                  onBlur={e => (e.currentTarget.style.borderColor = 'var(--border)')}
                 />
               </div>
             ))}
@@ -142,14 +150,20 @@ export default function SettingsPage() {
 
         {/* Departments */}
         <Card>
-          <CardHeader><h3 className="font-semibold text-gray-900">Departments</h3></CardHeader>
+          <CardHeader><h3 className="font-semibold" style={{ color: 'var(--text)' }}>Departments</h3></CardHeader>
           <CardBody className="space-y-3">
             <div className="flex flex-wrap gap-2 mb-4">
               {departments.map(d => (
-                <div key={d.id} className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-gray-200 bg-gray-50">
-                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: d.color }} />
-                  <span className="text-sm font-medium">{d.name}</span>
-                  <button onClick={() => deleteDept(d.id)} className="text-gray-400 hover:text-red-500">
+                <div key={d.id} style={{
+                  display: 'flex', alignItems: 'center', gap: '0.5rem',
+                  padding: '0.375rem 0.75rem', borderRadius: '9999px',
+                  border: '1px solid var(--border)', background: 'var(--surface-alt)',
+                }}>
+                  <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: d.color, flexShrink: 0 }} />
+                  <span style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--text)' }}>{d.name}</span>
+                  <button onClick={() => deleteDept(d.id)} style={{ color: 'var(--text-light)', background: 'none', border: 'none', cursor: 'pointer', display: 'flex' }}
+                    onMouseEnter={e => (e.currentTarget.style.color = 'var(--danger)')}
+                    onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-light)')}>
                     <Trash2 size={12} />
                   </button>
                 </div>
@@ -158,9 +172,9 @@ export default function SettingsPage() {
             <div className="flex gap-3 items-end">
               <Input label="Department Name" value={newDept.name} onChange={e => setNewDept(f => ({ ...f, name: e.target.value }))} placeholder="New Department" className="flex-1" />
               <div className="flex flex-col gap-1">
-                <label className="text-sm font-medium text-gray-700">Color</label>
+                <label style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-muted)' }}>Color</label>
                 <input type="color" value={newDept.color} onChange={e => setNewDept(f => ({ ...f, color: e.target.value }))}
-                  className="w-10 h-10 rounded-lg border border-gray-300 cursor-pointer" />
+                  style={{ width: '40px', height: '40px', borderRadius: '8px', border: '1px solid var(--border)', cursor: 'pointer' }} />
               </div>
               <Button onClick={addDept}><Plus size={16} /> Add</Button>
             </div>
@@ -169,17 +183,23 @@ export default function SettingsPage() {
 
         {/* Shift Definitions */}
         <Card>
-          <CardHeader><h3 className="font-semibold text-gray-900">Shift Definitions</h3></CardHeader>
+          <CardHeader><h3 className="font-semibold" style={{ color: 'var(--text)' }}>Shift Definitions</h3></CardHeader>
           <CardBody className="space-y-3">
             <div className="space-y-2">
               {shifts.map(s => (
-                <div key={s.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div key={s.id} style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  padding: '0.75rem', background: 'var(--surface-alt)', borderRadius: '8px',
+                  border: '1px solid var(--border)',
+                }}>
                   <div>
-                    <span className="font-medium text-sm">{s.name}</span>
-                    <span className="text-gray-500 text-sm ml-2">{s.start_time}–{s.end_time}</span>
+                    <span style={{ fontWeight: 500, fontSize: '0.875rem', color: 'var(--text)' }}>{s.name}</span>
+                    <span style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginLeft: '0.5rem' }}>{s.start_time}–{s.end_time}</span>
                     {s.department_name && <Badge className="ml-2">{s.department_name}</Badge>}
                   </div>
-                  <button onClick={() => deleteShift(s.id)} className="text-red-500 hover:text-red-700"><Trash2 size={15} /></button>
+                  <button onClick={() => deleteShift(s.id)} style={{ color: 'var(--danger)', background: 'none', border: 'none', cursor: 'pointer', display: 'flex' }}>
+                    <Trash2 size={15} />
+                  </button>
                 </div>
               ))}
             </div>
@@ -198,18 +218,24 @@ export default function SettingsPage() {
 
         {/* Coverage Rules */}
         <Card>
-          <CardHeader><h3 className="font-semibold text-gray-900">Coverage Rules</h3></CardHeader>
+          <CardHeader><h3 className="font-semibold" style={{ color: 'var(--text)' }}>Coverage Rules</h3></CardHeader>
           <CardBody className="space-y-3">
             <div className="space-y-2">
               {coverage.map(c => (
-                <div key={c.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div className="flex items-center gap-2 flex-wrap">
+                <div key={c.id} style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  padding: '0.75rem', background: 'var(--surface-alt)', borderRadius: '8px',
+                  border: '1px solid var(--border)',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
                     <Badge>{DAYS[c.day_of_week]}</Badge>
-                    <span className="text-sm font-medium">{c.department_name}</span>
-                    <span className="text-gray-500 text-sm">— {c.shift_type}</span>
+                    <span style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--text)' }}>{c.department_name}</span>
+                    <span style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>— {c.shift_type}</span>
                     <Badge variant="info">min {c.minimum_staff}</Badge>
                   </div>
-                  <button onClick={() => deleteCoverage(c.id)} className="text-red-500 hover:text-red-700"><Trash2 size={15} /></button>
+                  <button onClick={() => deleteCoverage(c.id)} style={{ color: 'var(--danger)', background: 'none', border: 'none', cursor: 'pointer', display: 'flex' }}>
+                    <Trash2 size={15} />
+                  </button>
                 </div>
               ))}
             </div>
@@ -224,7 +250,7 @@ export default function SettingsPage() {
               <Select label="Shift Type" value={newCoverage.shift_type} onChange={e => setNewCoverage(f => ({ ...f, shift_type: e.target.value }))}>
                 <option value="">Select shift...</option>
                 {[...new Set(shifts.map(s => s.name))].map(name => (
-                  <option key={name} value={name}>{name}</option>
+                  <option key={name as string} value={name as string}>{name as string}</option>
                 ))}
               </Select>
               <Input label="Min Staff" type="number" value={newCoverage.minimum_staff} onChange={e => setNewCoverage(f => ({ ...f, minimum_staff: e.target.value }))} min="1" />

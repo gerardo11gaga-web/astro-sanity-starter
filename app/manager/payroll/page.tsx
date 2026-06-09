@@ -81,34 +81,34 @@ export default function PayrollPage() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <Card>
                 <CardBody className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center">
-                    <DollarSign size={22} className="text-indigo-600" />
+                  <div style={{ width: '48px', height: '48px', background: 'var(--primary-light)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <DollarSign size={22} style={{ color: 'var(--primary)' }} />
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">Total Gross Pay</p>
-                    <p className="text-2xl font-bold text-gray-900">${totalGross.toFixed(2)}</p>
+                    <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Total Gross Pay</p>
+                    <p className="text-2xl font-bold" style={{ color: 'var(--text)' }}>${totalGross.toFixed(2)}</p>
                   </div>
                 </CardBody>
               </Card>
               <Card>
                 <CardBody className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-                    <DollarSign size={22} className="text-green-600" />
+                  <div style={{ width: '48px', height: '48px', background: '#DCFCE7', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <DollarSign size={22} style={{ color: '#166534' }} />
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">Total Hours</p>
-                    <p className="text-2xl font-bold text-gray-900">{totalHours.toFixed(1)}</p>
+                    <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Total Hours</p>
+                    <p className="text-2xl font-bold" style={{ color: 'var(--text)' }}>{totalHours.toFixed(1)}</p>
                   </div>
                 </CardBody>
               </Card>
               <Card>
                 <CardBody className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-pink-100 rounded-xl flex items-center justify-center">
-                    <DollarSign size={22} className="text-pink-600" />
+                  <div style={{ width: '48px', height: '48px', background: '#FEE2E2', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <DollarSign size={22} style={{ color: '#991B1B' }} />
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">Employees Paid</p>
-                    <p className="text-2xl font-bold text-gray-900">{result.employees.length}</p>
+                    <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Employees Paid</p>
+                    <p className="text-2xl font-bold" style={{ color: 'var(--text)' }}>{result.employees.length}</p>
                   </div>
                 </CardBody>
               </Card>
@@ -127,27 +127,30 @@ export default function PayrollPage() {
                 </tr>
               </Thead>
               <Tbody>
-                {result.employees.map((emp: any) => (
-                  <tr key={emp.employee_id} className="hover:bg-gray-50">
+                {result.employees.map((emp: any, i: number) => (
+                  <tr key={emp.employee_id}
+                    style={{ background: i % 2 === 1 ? 'var(--surface-alt)' : 'var(--surface)' }}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface-alt)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = i % 2 === 1 ? 'var(--surface-alt)' : 'var(--surface)')}>
                     <Td><span className="font-medium">{emp.name}</span></Td>
                     <Td><Badge>{emp.employee_type}</Badge></Td>
                     <Td>{emp.regular_hours.toFixed(1)}</Td>
                     <Td>
                       {emp.overtime_hours > 0
-                        ? <span className="text-orange-600 font-medium">{emp.overtime_hours.toFixed(1)}</span>
+                        ? <span style={{ color: 'var(--warning)', fontWeight: 500 }}>{emp.overtime_hours.toFixed(1)}</span>
                         : '0'
                       }
                     </Td>
                     <Td>
                       <div className="space-y-1">
-                        {emp.departments.map((d: any, i: number) => (
-                          <div key={i} className="text-xs">
+                        {emp.departments.map((d: any, idx: number) => (
+                          <div key={idx} className="text-xs">
                             <span className="font-medium">{d.name}</span>: {d.hours.toFixed(1)}h @ ${d.pay_rate}/hr = ${d.subtotal.toFixed(2)}
                           </div>
                         ))}
                       </div>
                     </Td>
-                    <Td className="font-bold text-gray-900">${emp.gross_pay.toFixed(2)}</Td>
+                    <Td><span style={{ fontWeight: 700, color: 'var(--text)' }}>${emp.gross_pay.toFixed(2)}</span></Td>
                   </tr>
                 ))}
               </Tbody>
@@ -156,7 +159,7 @@ export default function PayrollPage() {
             {/* Cash payroll section */}
             {result.employees.some((e: any) => e.employee_type === 'cash') && (
               <Card>
-                <CardHeader><h3 className="font-semibold text-gray-900">Cash Payroll</h3></CardHeader>
+                <CardHeader><h3 className="font-semibold" style={{ color: 'var(--text)' }}>Cash Payroll</h3></CardHeader>
                 <CardBody>
                   <Table>
                     <Thead>
@@ -171,7 +174,7 @@ export default function PayrollPage() {
                         <tr key={emp.employee_id}>
                           <Td>{emp.name}</Td>
                           <Td>{emp.total_hours.toFixed(1)}</Td>
-                          <Td className="font-bold">${emp.gross_pay.toFixed(2)}</Td>
+                          <Td><span style={{ fontWeight: 700 }}>${emp.gross_pay.toFixed(2)}</span></Td>
                         </tr>
                       ))}
                     </Tbody>

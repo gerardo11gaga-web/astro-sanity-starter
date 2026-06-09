@@ -29,7 +29,6 @@ export default function EmployeePortal() {
   }, []);
 
   async function fetchShifts() {
-    // Get published schedule for this week
     const weekStart = getWeekStart(new Date()).toISOString().split('T')[0];
     const res = await fetch(`/api/schedule?week_start=${weekStart}`);
     if (res.ok) {
@@ -52,7 +51,6 @@ export default function EmployeePortal() {
   async function submitPTO() {
     if (!ptoForm.start_date || !ptoForm.end_date) return;
     setLoading(true);
-    // For demo, use first employee - in real app would use session employee_id
     await fetch('/api/pto', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -68,46 +66,64 @@ export default function EmployeePortal() {
   const upcomingShifts = shifts.filter(s => s.date >= today).slice(0, 7);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
-            <Calendar size={16} className="text-white" />
+    <div className="min-h-screen" style={{ background: 'var(--bg)' }}>
+      <header style={{
+        background: 'var(--surface)', borderBottom: '1px solid var(--border)',
+        padding: '1rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <div style={{
+            width: '32px', height: '32px', background: 'var(--primary)',
+            borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <Calendar size={16} color="white" />
           </div>
-          <span className="font-bold text-gray-900">My Schedule</span>
+          <span style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, color: 'var(--text)', fontSize: '1rem' }}>
+            My Schedule
+          </span>
         </div>
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-gray-600">{session?.user?.email}</span>
-          <button onClick={() => signOut({ callbackUrl: '/login' })} className="text-gray-400 hover:text-gray-600">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>{session?.user?.email}</span>
+          <button
+            onClick={() => signOut({ callbackUrl: '/login' })}
+            style={{ color: 'var(--text-light)', background: 'none', border: 'none', cursor: 'pointer', display: 'flex' }}
+            onMouseEnter={e => (e.currentTarget.style.color = 'var(--text-muted)')}
+            onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-light)')}
+          >
             <LogOut size={16} />
           </button>
         </div>
       </header>
 
-      <main className="max-w-3xl mx-auto px-4 py-8 space-y-6">
+      <main style={{ maxWidth: '48rem', margin: '0 auto', padding: '2rem 1rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
         {/* Upcoming Shifts */}
         <Card>
           <CardHeader className="flex items-center justify-between">
-            <h2 className="font-semibold text-gray-900 flex items-center gap-2">
-              <Clock size={18} className="text-indigo-500" /> My Upcoming Shifts
+            <h2 className="font-semibold flex items-center gap-2" style={{ color: 'var(--text)' }}>
+              <Clock size={18} style={{ color: 'var(--primary)' }} /> My Upcoming Shifts
             </h2>
           </CardHeader>
           <CardBody>
             {upcomingShifts.length === 0 ? (
-              <p className="text-gray-500 text-sm text-center py-4">No upcoming shifts scheduled</p>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', textAlign: 'center', padding: '1rem 0' }}>
+                No upcoming shifts scheduled
+              </p>
             ) : (
               <div className="space-y-3">
                 {upcomingShifts.map((shift: any) => (
-                  <div key={shift.id} className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
+                  <div key={shift.id} style={{
+                    display: 'flex', alignItems: 'center', gap: '1rem',
+                    padding: '0.75rem', background: 'var(--surface-alt)', borderRadius: '8px',
+                    border: '1px solid var(--border)',
+                  }}>
                     <div
-                      className="w-3 h-3 rounded-full flex-shrink-0"
-                      style={{ backgroundColor: shift.department_color || '#6366f1' }}
+                      style={{ width: '12px', height: '12px', borderRadius: '50%', flexShrink: 0, backgroundColor: shift.department_color || 'var(--primary)' }}
                     />
-                    <div className="flex-1">
-                      <p className="font-medium text-sm text-gray-900">
+                    <div style={{ flex: 1 }}>
+                      <p style={{ fontWeight: 500, fontSize: '0.875rem', color: 'var(--text)' }}>
                         {new Date(shift.date + 'T12:00').toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' })}
                       </p>
-                      <p className="text-xs text-gray-500">{shift.start_time} – {shift.end_time} · {shift.department_name}</p>
+                      <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{shift.start_time} – {shift.end_time} · {shift.department_name}</p>
                     </div>
                     <Badge>{shift.position || 'General'}</Badge>
                   </div>
@@ -120,25 +136,33 @@ export default function EmployeePortal() {
         {/* PTO */}
         <Card>
           <CardHeader className="flex items-center justify-between">
-            <h2 className="font-semibold text-gray-900">Time Off Requests</h2>
+            <h2 className="font-semibold" style={{ color: 'var(--text)' }}>Time Off Requests</h2>
             <Button size="sm" onClick={() => setShowPTO(true)}>
               <Plus size={14} /> Request Time Off
             </Button>
           </CardHeader>
           <CardBody>
             {ptoRequests.length === 0 ? (
-              <p className="text-gray-500 text-sm text-center py-4">No PTO requests yet</p>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', textAlign: 'center', padding: '1rem 0' }}>
+                No PTO requests yet
+              </p>
             ) : (
               <div className="space-y-3">
                 {ptoRequests.map((pto: any) => (
-                  <div key={pto.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div key={pto.id} style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    padding: '0.75rem', background: 'var(--surface-alt)', borderRadius: '8px',
+                    border: '1px solid var(--border)',
+                  }}>
                     <div>
-                      <p className="font-medium text-sm capitalize">{pto.request_type.replace('_', ' ')}</p>
-                      <p className="text-xs text-gray-500">{pto.start_date} — {pto.end_date}</p>
-                      {pto.reason && <p className="text-xs text-gray-400">{pto.reason}</p>}
-                      {pto.manager_notes && <p className="text-xs text-indigo-600">Manager: {pto.manager_notes}</p>}
+                      <p style={{ fontWeight: 500, fontSize: '0.875rem', textTransform: 'capitalize', color: 'var(--text)' }}>
+                        {pto.request_type.replace('_', ' ')}
+                      </p>
+                      <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{pto.start_date} — {pto.end_date}</p>
+                      {pto.reason && <p style={{ fontSize: '0.75rem', color: 'var(--text-light)' }}>{pto.reason}</p>}
+                      {pto.manager_notes && <p style={{ fontSize: '0.75rem', color: 'var(--primary)' }}>Manager: {pto.manager_notes}</p>}
                     </div>
-                    <Badge variant={pto.status === 'approved' ? 'success' : pto.status === 'denied' ? 'danger' : 'warning'}>
+                    <Badge variant={pto.status === 'approved' ? 'approved' : pto.status === 'denied' ? 'denied' : 'pending'}>
                       {pto.status}
                     </Badge>
                   </div>

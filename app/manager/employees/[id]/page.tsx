@@ -34,7 +34,6 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
       const data = await res.json();
       setEmployee(data);
       setDepartments(data.departments || []);
-      // Initialize availability for all 7 days
       const existing = data.availability || [];
       const avail = DAYS.map((_, i) => {
         const found = existing.find((a: any) => a.day_of_week === i);
@@ -96,7 +95,13 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
     setAvailability(prev => prev.map((a, i) => i === idx ? { ...a, [field]: value } : a));
   }
 
-  if (!employee) return <ManagerLayout title="Employee"><div className="flex items-center justify-center h-64"><div className="animate-spin w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full" /></div></ManagerLayout>;
+  if (!employee) return (
+    <ManagerLayout title="Employee">
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin w-8 h-8 border-4 rounded-full" style={{ borderColor: 'var(--primary)', borderTopColor: 'transparent' }} />
+      </div>
+    </ManagerLayout>
+  );
 
   return (
     <ManagerLayout title={`${employee.first_name} ${employee.last_name}`}>
@@ -105,13 +110,15 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
           <Link href="/manager/employees">
             <Button variant="ghost" size="sm"><ArrowLeft size={16} /> Back</Button>
           </Link>
-          <h2 className="text-xl font-bold text-gray-900">{employee.first_name} {employee.last_name}</h2>
-          <Badge variant={employee.active ? 'success' : 'default'}>{employee.active ? 'Active' : 'Inactive'}</Badge>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text)', fontFamily: "'Playfair Display', serif" }}>
+            {employee.first_name} {employee.last_name}
+          </h2>
+          <Badge variant={employee.active ? 'approved' : 'default'}>{employee.active ? 'Active' : 'Inactive'}</Badge>
         </div>
 
         {/* Basic Info */}
         <Card>
-          <CardHeader><h3 className="font-semibold text-gray-900">Basic Information</h3></CardHeader>
+          <CardHeader><h3 className="font-semibold" style={{ color: 'var(--text)' }}>Basic Information</h3></CardHeader>
           <CardBody>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input label="First Name" value={employee.first_name || ''} onChange={e => setEmployee((emp: any) => ({ ...emp, first_name: e.target.value }))} />
@@ -132,14 +139,17 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
 
         {/* Departments */}
         <Card>
-          <CardHeader><h3 className="font-semibold text-gray-900">Department Assignments</h3></CardHeader>
+          <CardHeader><h3 className="font-semibold" style={{ color: 'var(--text)' }}>Department Assignments</h3></CardHeader>
           <CardBody className="space-y-3">
             {departments.map((d: any) => (
-              <div key={d.department_id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <span className="font-medium text-sm">{d.department_name}</span>
-                <div className="flex items-center gap-3">
-                  <span className="text-sm text-gray-600">${d.pay_rate}/hr</span>
-                  <button onClick={() => removeDept(d.department_id)} className="text-red-500 hover:text-red-700">
+              <div key={d.department_id} style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                padding: '0.75rem', background: 'var(--surface-alt)', borderRadius: '8px', border: '1px solid var(--border)',
+              }}>
+                <span style={{ fontWeight: 500, fontSize: '0.875rem', color: 'var(--text)' }}>{d.department_name}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>${d.pay_rate}/hr</span>
+                  <button onClick={() => removeDept(d.department_id)} style={{ color: 'var(--danger)', background: 'none', border: 'none', cursor: 'pointer', display: 'flex' }}>
                     <Trash2 size={15} />
                   </button>
                 </div>
@@ -149,7 +159,14 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
               <select
                 value={newDeptId}
                 onChange={e => setNewDeptId(e.target.value)}
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:border-indigo-500"
+                style={{
+                  flex: 1, padding: '0.5rem 0.75rem',
+                  border: '1px solid var(--border)', borderRadius: '8px',
+                  fontSize: '0.875rem', outline: 'none',
+                  background: 'var(--surface)', color: 'var(--text)',
+                }}
+                onFocus={e => (e.currentTarget.style.borderColor = 'var(--primary)')}
+                onBlur={e => (e.currentTarget.style.borderColor = 'var(--border)')}
               >
                 <option value="">Select department...</option>
                 {allDepts.filter(d => !departments.some((ed: any) => ed.department_id === d.id)).map(d => (
@@ -161,7 +178,14 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
                 placeholder="Pay rate"
                 value={newPayRate}
                 onChange={e => setNewPayRate(e.target.value)}
-                className="w-28 px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:border-indigo-500"
+                style={{
+                  width: '112px', padding: '0.5rem 0.75rem',
+                  border: '1px solid var(--border)', borderRadius: '8px',
+                  fontSize: '0.875rem', outline: 'none',
+                  background: 'var(--surface)', color: 'var(--text)',
+                }}
+                onFocus={e => (e.currentTarget.style.borderColor = 'var(--primary)')}
+                onBlur={e => (e.currentTarget.style.borderColor = 'var(--border)')}
               />
               <Button size="sm" onClick={addDept} disabled={!newDeptId}><Plus size={15} /> Add</Button>
             </div>
@@ -170,7 +194,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
 
         {/* Availability */}
         <Card>
-          <CardHeader><h3 className="font-semibold text-gray-900">Weekly Availability</h3></CardHeader>
+          <CardHeader><h3 className="font-semibold" style={{ color: 'var(--text)' }}>Weekly Availability</h3></CardHeader>
           <CardBody className="space-y-3">
             {availability.map((avail, idx) => (
               <div key={idx} className="flex items-center gap-3 flex-wrap">
@@ -179,19 +203,25 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
                     type="checkbox"
                     checked={avail.available === 1}
                     onChange={e => updateAvail(idx, 'available', e.target.checked ? 1 : 0)}
-                    className="rounded"
+                    style={{ accentColor: 'var(--primary)' }}
                   />
-                  <span className="text-sm font-medium text-gray-700">{DAYS[idx].slice(0, 3)}</span>
+                  <span style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-muted)' }}>{DAYS[idx].slice(0, 3)}</span>
                 </div>
                 {avail.available === 1 && (
                   <>
                     <input type="time" value={avail.start_time || '09:00'} onChange={e => updateAvail(idx, 'start_time', e.target.value)}
-                      className="px-2 py-1 border border-gray-300 rounded text-sm outline-none focus:border-indigo-500" />
-                    <span className="text-gray-400 text-sm">to</span>
+                      style={{ padding: '0.25rem 0.5rem', border: '1px solid var(--border)', borderRadius: '6px', fontSize: '0.875rem', outline: 'none', background: 'var(--surface)', color: 'var(--text)' }}
+                      onFocus={e => (e.currentTarget.style.borderColor = 'var(--primary)')}
+                      onBlur={e => (e.currentTarget.style.borderColor = 'var(--border)')} />
+                    <span style={{ color: 'var(--text-light)', fontSize: '0.875rem' }}>to</span>
                     <input type="time" value={avail.end_time || '17:00'} onChange={e => updateAvail(idx, 'end_time', e.target.value)}
-                      className="px-2 py-1 border border-gray-300 rounded text-sm outline-none focus:border-indigo-500" />
+                      style={{ padding: '0.25rem 0.5rem', border: '1px solid var(--border)', borderRadius: '6px', fontSize: '0.875rem', outline: 'none', background: 'var(--surface)', color: 'var(--text)' }}
+                      onFocus={e => (e.currentTarget.style.borderColor = 'var(--primary)')}
+                      onBlur={e => (e.currentTarget.style.borderColor = 'var(--border)')} />
                     <select value={avail.alternating || 'none'} onChange={e => updateAvail(idx, 'alternating', e.target.value)}
-                      className="px-2 py-1 border border-gray-300 rounded text-sm outline-none focus:border-indigo-500">
+                      style={{ padding: '0.25rem 0.5rem', border: '1px solid var(--border)', borderRadius: '6px', fontSize: '0.875rem', outline: 'none', background: 'var(--surface)', color: 'var(--text)' }}
+                      onFocus={e => (e.currentTarget.style.borderColor = 'var(--primary)')}
+                      onBlur={e => (e.currentTarget.style.borderColor = 'var(--border)')}>
                       <option value="none">Every week</option>
                       <option value="even">Even weeks</option>
                       <option value="odd">Odd weeks</option>
@@ -205,20 +235,23 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
 
         {/* PTO History */}
         <Card>
-          <CardHeader><h3 className="font-semibold text-gray-900">PTO History</h3></CardHeader>
+          <CardHeader><h3 className="font-semibold" style={{ color: 'var(--text)' }}>PTO History</h3></CardHeader>
           <CardBody>
             {ptoHistory.length === 0 ? (
-              <p className="text-gray-500 text-sm">No PTO requests</p>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>No PTO requests</p>
             ) : (
               <div className="space-y-2">
                 {ptoHistory.map((pto: any) => (
-                  <div key={pto.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div key={pto.id} style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    padding: '0.75rem', background: 'var(--surface-alt)', borderRadius: '8px', border: '1px solid var(--border)',
+                  }}>
                     <div>
-                      <span className="font-medium text-sm capitalize">{pto.request_type.replace('_', ' ')}</span>
-                      <p className="text-xs text-gray-500">{pto.start_date} — {pto.end_date}</p>
-                      {pto.reason && <p className="text-xs text-gray-400">{pto.reason}</p>}
+                      <span style={{ fontWeight: 500, fontSize: '0.875rem', textTransform: 'capitalize', color: 'var(--text)' }}>{pto.request_type.replace('_', ' ')}</span>
+                      <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{pto.start_date} — {pto.end_date}</p>
+                      {pto.reason && <p style={{ fontSize: '0.75rem', color: 'var(--text-light)' }}>{pto.reason}</p>}
                     </div>
-                    <Badge variant={pto.status === 'approved' ? 'success' : pto.status === 'denied' ? 'danger' : 'warning'}>
+                    <Badge variant={pto.status === 'approved' ? 'approved' : pto.status === 'denied' ? 'denied' : 'pending'}>
                       {pto.status}
                     </Badge>
                   </div>
