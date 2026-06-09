@@ -123,10 +123,16 @@ export default function HQPage() {
           </div>
           <span className="text-[#f1f5f9] font-bold text-base">CLL Carniceria</span>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <span className="text-[#94a3b8] text-sm hidden sm:block tabular-nums">
             {time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
           </span>
+          {pendingPTO > 0 && (
+            <Link href="/manager/pto-queue" className="relative p-2 text-[#94a3b8] hover:text-[#f1f5f9] rounded-lg hover:bg-[#334155] transition-colors">
+              <Bell size={16} />
+              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-[#f59e0b] rounded-full text-[9px] font-bold text-white flex items-center justify-center">{pendingPTO}</span>
+            </Link>
+          )}
           <button
             onClick={() => signOut({ callbackUrl: '/login' })}
             className="flex items-center gap-1.5 text-[#94a3b8] hover:text-[#f1f5f9] text-sm transition-colors px-3 py-1.5 rounded-lg hover:bg-[#334155]"
